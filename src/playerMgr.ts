@@ -14,6 +14,7 @@ export class PlayerManager{
     hasToy: boolean = false
     hasFood: boolean = false
     hasPicture: boolean = false
+    ritualComplete: boolean = false
 
 	constructor(){
 
@@ -30,6 +31,7 @@ export class PlayerManager{
         this.hasToy = false
         this.hasFood = false
         this. hasPicture = false
+        this.ritualComplete = false
 
         //start async function to get player data
 		executeTask(async () => {

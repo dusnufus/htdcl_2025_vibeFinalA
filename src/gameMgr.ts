@@ -1,15 +1,14 @@
 //import { worldInfo } from './worldData'
-//import { PlayerManager } from './playerMgr'
-//import { TestZoneManager } from './testZoneMgr'
+import { PlayerManager } from './playerMgr'
 
 import {engine, Entity, GltfContainer, Transform} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
+import { initUi } from './uiMgr'
 
 export class GameManager{
 
-	//playerMgr: PlayerManager
-	//testZoneMgr: TestZoneManager
-	
+	playerMgr: PlayerManager
+
     staticEntities: Array<Entity>
 	
 	constructor(){
@@ -35,10 +34,9 @@ export class GameManager{
 		}
 		
 		
-		//this.playerMgr = new PlayerManager()
-		
-		//this.testZoneMgr = new TestZoneManager(this, worldInfo.initTestZoneIndex)
-
+		this.playerMgr = new PlayerManager()
+	
+        initUi(this)
         
 		
 	}
@@ -109,6 +107,9 @@ const data = {
 
             //blue platformA
             //{name: "2x2_movPlat", movementType: "twoPointLoop", startPos: Vector3.create(-10,1.25,22), endPos: Vector3.create(-10,5,22), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/alPvpZone/pvpPartsA/step_2x2.gltf", scale: Vector3.create(1,1,1)},
+            
+        ],
+        collectables: [
             
         ],
     }
