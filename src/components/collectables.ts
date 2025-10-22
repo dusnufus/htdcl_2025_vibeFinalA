@@ -3,32 +3,31 @@ import { engine, GltfContainer, Transform, Entity, pointerEventsSystem, InputAct
 import { GameManager } from '../gameMgr'
 import { Quaternion, Vector3 } from '@dcl/sdk/math'
 
-export function CandleCollectable(_gameMgr: GameManager, _prompt:string, _targetTestZoneIndex: number, _targetSpawnIndex: number, _srcPath:string, _pos: Vector3, _scale: Vector3, _rot: Quaternion): Entity{
+export function CandleCollectable(_gameMgr: GameManager, _index:number, _srcPath:string, _pos: Vector3, _scale: Vector3, _rot: Quaternion): Entity{
 
-    var entity = engine.addEntity()
-    GltfContainer.create(entity, {
+    var e = engine.addEntity()
+    GltfContainer.create(e, {
         src: _srcPath
     })
 
-    Transform.create(entity, {
+    Transform.create(e, {
         position: _pos,
         scale: _scale,
         rotation: _rot
     })
 
     pointerEventsSystem.onPointerDown(
-        entity,
+        e,
         () => {
-            console.log("clicked candle")
-            _gameMgr.candleCollected()
-            //console.log("AreaIndex: " + this.areaMgr.areaIndex + ", targetAreaIndex: " + this.targetAreaIndex)
+            console.log("clicked candle: " + _index)
+            _gameMgr.candleCollected(_index)
         },
         {
             button: InputAction.IA_POINTER,
-            hoverText: _prompt
+            hoverText: "PICK UP CANDLE"
         }
     )
 
-    return entity
+    return e
 
 }

@@ -4,6 +4,7 @@ import { PlayerManager } from './playerMgr'
 import {engine, Entity, GltfContainer, Transform} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
 import { initUi } from './uiMgr'
+import { CandleCollectable } from './components/collectables'
 
 export class GameManager{
 
@@ -18,6 +19,11 @@ export class GameManager{
     missionTitle: string = ""
 
     staticEntities: Array<Entity>
+
+    girlHouseTrigger: undefined
+
+    candles: Array<Entity>
+    candleIndexCollected: Array<number>
 	
 	constructor(){
 
@@ -32,6 +38,11 @@ export class GameManager{
 
         //init missionTitle
         this.missionTitle = "EXPLORE THE TOWN"
+
+        //TODO: activate a trigger for the girl's house
+
+        this.candles = []
+        this.candleIndexCollected = []
 
         //place static items
 		for(var se = 0; se < data.staticParts.length; se++){
@@ -49,6 +60,8 @@ export class GameManager{
 
 			this.staticEntities.push(e)
 		}
+
+        this.foundGirl()
 		
 		
 		this.playerMgr = new PlayerManager()
@@ -58,12 +71,20 @@ export class GameManager{
 		
 	}
 
-    candleCollected(){
-        this.playerMgr.candleCount ++;
-        this.itemCheck();
+    candleCollected(_candleIndex:number){
+
+        if(!this.candleIndexCollected.includes(_candleIndex) && this.playerMgr.candleCount <= 7){
+            this.candleIndexCollected.push(_candleIndex)
+            this.playerMgr.candleCount ++;
+            engine.removeEntity(this.candles[_candleIndex])
+            this.itemCheck();
+        }
+        
+        
     }
 
     itemCheck(){
+        //check if all the items are collected
         if( this.playerMgr.candleCount >= 7 && 
             this.playerMgr.hasPenPaper == true &&
             this.playerMgr.hasFood == true &&
@@ -78,6 +99,37 @@ export class GameManager{
             //change the macro mission title
             this.missionTitle = "FIND THE RITUAL TREE"
         }
+    }
+
+    foundGirl(){
+
+        //spawn candles
+        for(var c = 0; c < data.candleCollectables.length; c++){
+			/* var e = engine.addEntity()
+
+			GltfContainer.create(e, {
+				src: 
+			})
+
+			Transform.create(e, {
+				position: data.candleCollectables[c].pos,
+				scale: data.candleCollectables[c].scale,
+				rotation: data.candleCollectables[c].rot
+			}) */
+            var e: Entity = CandleCollectable(    this, 
+                                                        c, 
+                                                        data.candleCollectables[c].src, 
+                                                        data.candleCollectables[c].pos, 
+                                                        data.candleCollectables[c].scale, 
+                                                        data.candleCollectables[c].rot
+                                                    )
+                                
+
+			this.candles.push(e)
+		}
+
+
+
     }
 }
 
@@ -138,7 +190,7 @@ const data = {
             //{name: "2x2_movPlat", movementType: "twoPointLoop", startPos: Vector3.create(-10,1.25,22), endPos: Vector3.create(-10,5,22), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/alPvpZone/pvpPartsA/step_2x2.gltf", scale: Vector3.create(1,1,1)},
             
         ],
-        collectables: [
+        candleCollectables: [
 
             {name: "candle17", pos: Vector3.create(21,3,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
             {name: "candle18", pos: Vector3.create(21,3,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
@@ -153,6 +205,6 @@ const data = {
 
         ],
         triggerZones: [
-
+            
         ],
     }
