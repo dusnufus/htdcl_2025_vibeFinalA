@@ -9,14 +9,31 @@ export class GameManager{
 
 	playerMgr: PlayerManager
 
+    //mission states (macro)
+    girlMet: boolean
+    allItemsCollected: boolean
+    ritualComplete: boolean
+
+    //mission title (macro scale)
+    missionTitle: string = ""
+
     staticEntities: Array<Entity>
 	
 	constructor(){
 
 		console.log("GameManager: constructor running")
 
-		this.staticEntities = [];
+		this.staticEntities = []
 
+        //init mission states (macro scale only in game manager)
+        this.girlMet = false
+        this.allItemsCollected = false
+        this.ritualComplete = false
+
+        //init missionTitle
+        this.missionTitle = "EXPLORE THE TOWN"
+
+        //place static items
 		for(var se = 0; se < data.staticParts.length; se++){
 			var e = engine.addEntity()
 
@@ -40,6 +57,28 @@ export class GameManager{
         
 		
 	}
+
+    candleCollected(){
+        this.playerMgr.candleCount ++;
+        this.itemCheck();
+    }
+
+    itemCheck(){
+        if( this.playerMgr.candleCount >= 7 && 
+            this.playerMgr.hasPenPaper == true &&
+            this.playerMgr.hasFood == true &&
+            this.playerMgr.hasToy == true && 
+            this.playerMgr.hasPicture
+        ){
+            //ALL RITUAL SUB-MISSIONS COMPLETE
+
+            //mark allItemsComplete
+            this.allItemsCollected = true
+
+            //change the macro mission title
+            this.missionTitle = "FIND THE RITUAL TREE"
+        }
+    }
 }
 
 const data = {
@@ -51,13 +90,6 @@ const data = {
             //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_libraries.glb", scale: Vector3.create(1,1,1)},
             //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_aptTownHall.glb", scale: Vector3.create(1,1,1)},
             
-            {name: "candle17", pos: Vector3.create(21,3,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle18", pos: Vector3.create(21,3,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle19", pos: Vector3.create(21,3,12), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(21,3,11.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle17", pos: Vector3.create(21,3,11), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle20", pos: Vector3.create(21,3,10.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(21,3,10), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
             
 
             
@@ -100,9 +132,6 @@ const data = {
             {name: "library3", pos: Vector3.create(30,0,40), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/library3_rough.glb", scale: Vector3.create(1,1,1)}, */
             
         ],
-        tpInteractables: [
-            //{name: "tpToLandingAreaTestZone", promptText: "TP TO LANDING AREA TEST ZONE", destTestZoneIndex: 0, targetSpawnIndex: 0, pos: Vector3.create(10,.25,100), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/landingZone/tpMachine_lz.glb", scale: Vector3.create(1,1,1)},
-        ],
         movingEntities: [
 
             //blue platformA
@@ -110,6 +139,20 @@ const data = {
             
         ],
         collectables: [
+
+            {name: "candle17", pos: Vector3.create(21,3,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle18", pos: Vector3.create(21,3,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle19", pos: Vector3.create(21,3,12), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(21,3,11.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle17", pos: Vector3.create(21,3,11), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle20", pos: Vector3.create(21,3,10.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(21,3,10), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
             
+        ],
+        placementZones: [
+
+        ],
+        triggerZones: [
+
         ],
     }

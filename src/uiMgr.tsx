@@ -9,6 +9,7 @@ import { GameManager } from './gameMgr'
 
 import { CoordsModule } from './uiElements/coordInfoModule'
 import { PlayerInfoModule } from './uiElements/playerInfoModule'
+import { MissionListModule } from './uiElements/missionListModule'
 
 let gameMgr: GameManager
 
@@ -21,5 +22,6 @@ export function initUi(_gameMgr: GameManager) {
 
 const uiInit = () => [
   CoordsModule(),
-  PlayerInfoModule(gameMgr)
+  PlayerInfoModule(gameMgr),
+  MissionListModule(gameMgr)
 ]
