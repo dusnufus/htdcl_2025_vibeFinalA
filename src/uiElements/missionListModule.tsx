@@ -1,7 +1,7 @@
-import {
+/* import {
     engine,
     Transform,
-  } from '@dcl/sdk/ecs'
+  } from '@dcl/sdk/ecs' */
   
   import ReactEcs, { Button, Label, ReactEcsRenderer, UiEntity } from '@dcl/sdk/react-ecs'
 import { Color4 } from '@dcl/sdk/math'

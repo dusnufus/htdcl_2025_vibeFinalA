@@ -1,7 +1,7 @@
-import {
+/* import {
     engine,
     Transform,
-  } from '@dcl/sdk/ecs'
+  } from '@dcl/sdk/ecs' */
   
   import ReactEcs, { Button, Label, ReactEcsRenderer, UiEntity } from '@dcl/sdk/react-ecs'
 import { Color4 } from '@dcl/sdk/math'
@@ -24,8 +24,8 @@ export function PlayerInfoModule(_gameMgr: GameManager) {
       uiBackground={{ color: Color4.create(0, 0, 0, 0.6) }}
       
       >
-      <Label value={`Player Name: ${_gameMgr.playerMgr.playerUserData.data.displayName}`} fontSize={18} textAlign="middle-center" />
-
+      <Label value={`Player Name: ${_gameMgr.playerMgr.playerInfoRec ? _gameMgr.playerMgr.playerUserData.data.displayName : "waiting for data..."}`} fontSize={18} textAlign="middle-center" />
+      
       
     </UiEntity>
 

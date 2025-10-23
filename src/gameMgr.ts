@@ -1,10 +1,11 @@
 //import { worldInfo } from './worldData'
 import { PlayerManager } from './playerMgr'
 
-import {engine, Entity, GltfContainer, Transform} from '@dcl/sdk/ecs'
+import {ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
 import { initUi } from './uiMgr'
 import { CandleCollectable } from './components/collectables'
+import { HouseTriggerZone} from './components/triggerZones'
 
 export class GameManager{
 
@@ -18,9 +19,11 @@ export class GameManager{
     //mission title (macro scale)
     missionTitle: string = ""
 
+    messageText: string = "nothing"
+
     staticEntities: Array<Entity>
 
-    girlHouseTrigger: undefined
+    girlHouseTrigger: any
 
     candles: Array<Entity>
     candleIndexCollected: Array<number>
@@ -40,6 +43,26 @@ export class GameManager{
         this.missionTitle = "EXPLORE THE TOWN"
 
         //TODO: activate a trigger for the girl's house
+        //------------------
+        //this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(30,5,55), Vector3.create(10,10,10))
+        this.girlHouseTrigger = engine.addEntity()
+        TriggerArea.setBox(this.girlHouseTrigger/* , ColliderLayer.CL_PLAYER */)
+        Transform.create(this.girlHouseTrigger, {
+            position: Vector3.create(30,5,55),
+            scale: Vector3.create(10,10,10)
+        })
+        MeshRenderer.setBox(this.girlHouseTrigger)
+        //MeshCollider.setBox(this.girlHouseTrigger, ColliderLayer.CL_NONE)
+
+        triggerAreaEventsSystem.onTriggerEnter(this.girlHouseTrigger, (e)=> {
+            console.log("HouseTriggerZone: trigger area activated")
+            engine.removeEntity(this.girlHouseTrigger)
+            this.messageText = "in"
+            this.foundGirl()
+        })
+
+
+        //------------------
 
         this.candles = []
         this.candleIndexCollected = []
@@ -61,7 +84,7 @@ export class GameManager{
 			this.staticEntities.push(e)
 		}
 
-        this.foundGirl()
+        //this.foundGirl()
 		
 		
 		this.playerMgr = new PlayerManager()
@@ -103,6 +126,8 @@ export class GameManager{
 
     foundGirl(){
 
+
+        console.log("foundGirl: true")
         //spawn candles
         for(var c = 0; c < data.candleCollectables.length; c++){
 			/* var e = engine.addEntity()
@@ -136,7 +161,7 @@ export class GameManager{
 const data = {
         staticParts: [
 
-            {name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_allMovedA.glb", scale: Vector3.create(1,1,1)},
+            {name: "stretchedLayoutB", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
             
             //{name: "stretchedLayoutB", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
             //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_libraries.glb", scale: Vector3.create(1,1,1)},
@@ -205,6 +230,6 @@ const data = {
 
         ],
         triggerZones: [
-            
+
         ],
     }
