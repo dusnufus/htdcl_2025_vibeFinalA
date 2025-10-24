@@ -18,6 +18,7 @@ export interface WaypointSet {
     waypoints: WaypointData[]
     loopWaypoints?: boolean
     moveSpeed?: number
+    onComplete?: () => void  // Called when waypoint set finishes (not called for looping sets)
 }
 
 export interface DialogLine {
@@ -238,6 +239,12 @@ export class NPC {
             } else {
                 this.state = 'idle'
                 console.log(`${this.config.name} completed waypoint set: ${this.currentWaypointSetId}`)
+                
+                // Call onComplete callback if defined
+                if (this.currentWaypointSet.onComplete) {
+                    this.currentWaypointSet.onComplete()
+                }
+                
                 return
             }
         }

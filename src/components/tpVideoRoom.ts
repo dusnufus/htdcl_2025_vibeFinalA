@@ -14,6 +14,10 @@ export class TpVideoRoom{
     waitAfterEnd: number = 0
     elapsedWaitTime: number = 0
     currentVideoSrc: string = ''
+    
+    // Fallback timer properties
+    videoPlayingTime: number = 0
+    expectedVideoDuration: number = 0  // videoLength + 5 second buffer
 
 	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number){
 
@@ -58,7 +62,20 @@ export class TpVideoRoom{
                 if (this.elapsedWaitTime >= this.waitBeforeStart) {
                     this.elapsedWaitTime = 0
                     this.videoState = 'playing'
+                    this.videoPlayingTime = 0  // Reset video playing timer
                     this.playVideoNow()
+                }
+            } else if (this.videoState === 'playing') {
+                // Fallback timer: track actual playing time
+                this.videoPlayingTime += dt
+                
+                // If we've exceeded expected duration + buffer, force end
+                if (this.expectedVideoDuration > 0 && 
+                    this.videoPlayingTime >= this.expectedVideoDuration) {
+                    console.log('Fallback timer triggered - forcing video end after ' + 
+                                this.videoPlayingTime.toFixed(2) + ' seconds')
+                    this.videoState = 'waitingAfterEnd'
+                    this.elapsedWaitTime = 0
                 }
             } else if (this.videoState === 'waitingAfterEnd') {
                 this.elapsedWaitTime += dt
@@ -77,6 +94,8 @@ export class TpVideoRoom{
         this.waitBeforeStart = _waitBeforeStart
         this.waitAfterEnd = _waitAfterEnd
         this.elapsedWaitTime = 0
+        this.videoPlayingTime = 0
+        this.expectedVideoDuration = 0  // Reset for new video
         this.videoState = 'waitingToStart'
         
         console.log(`setVideo: waiting ${_waitBeforeStart}s before starting ${_videoSrc}`)
@@ -115,19 +134,19 @@ export class TpVideoRoom{
         videoEventsSystem.registerVideoEventsEntity(
             this.screenEntities[0],
             (videoEvent) => {
-                /* console.log(
-                    'video event - state: ' +
-                        videoEvent.state +
-                        '\ncurrent offset:' +
-                        videoEvent.currentOffset +
-                        '\nvideo length:' +
-                        videoEvent.videoLength
-                ) */
+                // Capture video length when available and set fallback duration
+                if (videoEvent.videoLength > 0 && this.expectedVideoDuration === 0) {
+                    this.expectedVideoDuration = videoEvent.videoLength + 5  // Add 5 second buffer
+                    console.log(`Video length detected: ${videoEvent.videoLength.toFixed(2)}s, ` + 
+                               `fallback timer set to ${this.expectedVideoDuration.toFixed(2)}s`)
+                }
 
                 if (this.videoState === 'playing' && 
-                    (videoEvent.currentOffset >= videoEvent.videoLength - 0.5 || videoEvent.state != VideoState.VS_PLAYING)) {
-                    console.log('video ended, starting wait period')
+                    (videoEvent.currentOffset >= videoEvent.videoLength - 0.5 || 
+                     videoEvent.state != VideoState.VS_PLAYING)) {
+                    console.log('video ended (via video events), starting wait period')
                     this.videoState = 'waitingAfterEnd'
+                    this.elapsedWaitTime = 0
                 }
         
                 /* switch (videoEvent.state) {
