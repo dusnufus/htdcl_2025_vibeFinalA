@@ -14,7 +14,7 @@ export function MissionListModule(_gameMgr: GameManager) {
     <UiEntity
             uiTransform={{
                 width: '300 px',
-                height: '600 px',
+                height: '150 px',
                 flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'space-between',
@@ -22,7 +22,7 @@ export function MissionListModule(_gameMgr: GameManager) {
                 position: { right: '20 px', top: '100 px' },
             }}
 
-            //uiBackground={{ color: Color4.create(0, 0, 0, 0.6) }}
+            
             uiBackground={{
                     textureMode: 'nine-slices',
                     texture: {
@@ -66,27 +66,6 @@ export function MissionListModule(_gameMgr: GameManager) {
       </UiEntity>
 
         
-
-      <UiEntity
-      //sub-mission list
-                        uiTransform={{
-                        width: '300 px',
-                        height: '200 px',
-                        flexDirection: 'column',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                        positionType: 'absolute',
-                            position: {top: '200 px' },
-                        }}
-                    >
-                        
-                        <Label value={`Candles: ${_gameMgr.playerMgr.candleCount}`} fontSize={18} textAlign="middle-center" font='serif' />
-                        <Label value={`Paper and Pen: ${_gameMgr.playerMgr.hasPenPaper}`} fontSize={18} textAlign="middle-center" />
-                        <Label value={`Cat Toy: ${_gameMgr.playerMgr.hasToy}`} fontSize={18} textAlign="middle-center" />
-                        <Label value={`Photo: ${_gameMgr.playerMgr.hasPicture}`} fontSize={18} textAlign="middle-center" />
-                        <Label value={`Cat Food: ${_gameMgr.playerMgr.hasFood}`} fontSize={18} textAlign="middle-center" />
-    
-      </UiEntity>
 
       
     

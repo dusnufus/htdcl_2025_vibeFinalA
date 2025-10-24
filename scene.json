@@ -33,17 +33,17 @@
   },
   "spawnPoints": [
     {
-      "name": "spawn1",
+      "name": "tpRoom",
       "default": true,
       "position": {
-        "x": -10,
-        "y": 30,
-        "z": 5
+        "x": 0,
+        "y": 0,
+        "z": 0
       },
       "cameraTarget": {
-        "x": 8,
-        "y": 20,
-        "z": 8
+        "x": 3,
+        "y": 2,
+        "z": 0
       }
     }
   ],
@@ -52,6 +52,7 @@
     "portableExperiences": "enabled"
   },
   "requiredPermissions": [
-    "ALLOW_TO_MOVE_PLAYER_INSIDE_SCENE"
+    "ALLOW_TO_MOVE_PLAYER_INSIDE_SCENE",
+    "ALLOW_TO_TRIGGER_AVATAR_EMOTE"
   ]
 }

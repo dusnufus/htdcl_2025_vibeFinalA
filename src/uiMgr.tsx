@@ -7,20 +7,40 @@ import { GameManager } from './gameMgr'
 import { CoordsModule } from './uiElements/coordInfoModule'
 import { PlayerInfoModule } from './uiElements/playerInfoModule'
 import { MissionListModule } from './uiElements/missionListModule'
+import { MissionSubListModule } from './uiElements/missionSubListModule'
 import { MessageModule } from './uiElements/messageModule'
 
 let gameMgr: GameManager
 
-export function initUi(_gameMgr: GameManager) {
+export function setUiForMissionState(_gameMgr: GameManager, _missionState: string) {
 
   gameMgr = _gameMgr
 
-  ReactEcsRenderer.setUiRenderer(uiInit)
+  switch(_missionState){
+    case "introPlaying":
+      ReactEcsRenderer.setUiRenderer(uiInit)
+      break
+    case "exploringTown":
+      ReactEcsRenderer.setUiRenderer(uiExploringTown)
+      break
+  }
+
+
 }
+
+
 
 const uiInit = () => [
   CoordsModule(),
   //PlayerInfoModule(gameMgr),
+  //MissionListModule(gameMgr),
+  //MessageModule(gameMgr)
+]
+
+const uiExploringTown = () => [
+  CoordsModule(),
+  PlayerInfoModule(gameMgr),
   MissionListModule(gameMgr),
+  //MissionSubListModule(gameMgr),
   MessageModule(gameMgr)
 ]

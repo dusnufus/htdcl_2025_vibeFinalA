@@ -3,7 +3,7 @@ import { engine, GltfContainer, Transform, Entity, TriggerArea, triggerAreaEvent
 import { GameManager } from '../gameMgr'
 import { Vector3 } from '@dcl/sdk/math'
 
-export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: Vector3): Entity{
+export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: Vector3, _debug: boolean = false): Entity{
 
     console.log("HouseTriggerZone: constructor running")
     var e = engine.addEntity()
@@ -15,10 +15,12 @@ export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: V
         scale: _scale
     })
 
-    MeshRenderer.setBox(e)
+    if(_debug){
+        MeshRenderer.setBox(e)
+    }
 
     // Event when trigger area activated
-    triggerAreaEventsSystem.onTriggerEnter(e, function(result) {
+    triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
         console.log("HouseTriggerZone: trigger area activated")
         _gameMgr.foundGirl()
     })

@@ -9,7 +9,7 @@ export function MessageModule(_gameMgr: GameManager) {
       uiTransform={{
         width: 600,
         height: 20,
-        margin: {bottom: '100 px' },
+        margin: {bottom: '-100 px' },
         flexDirection: 'column',
         alignItems: 'center',
         justifyContent: 'space-between',
