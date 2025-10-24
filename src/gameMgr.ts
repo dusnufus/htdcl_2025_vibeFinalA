@@ -60,6 +60,13 @@ export class GameManager{
     messageText: string = "nothing"
     videoWatched: boolean = false
 
+    // Dialog system
+    dialogActive: boolean = false
+    dialogNPCName: string = ""
+    dialogText: string = ""
+    dialogHasNext: boolean = false
+    currentDialogNPC: any = null
+
     staticEntities: Array<Entity>
 
     girlHouseTrigger: any
@@ -70,8 +77,11 @@ export class GameManager{
 
     tpVideoRoom: TpVideoRoom
 
-    doorman: any
     girl!: NPC
+    shopKeeper!: NPC
+    templeShaman!: NPC  
+    oldLady!: NPC
+    doorman!: NPC
 	
 	constructor(){
 
@@ -87,42 +97,20 @@ export class GameManager{
 
         this.playerMgr = new PlayerManager()
 
-
-
-
-
         //init mission states (macro scale only in game manager)
         this.girlMet = false
         this.allItemsCollected = false
         this.ritualComplete = false
 
-
-        //test the npc avatar system
-        this.doorman = engine.addEntity()
-        AvatarShape.create(this.doorman, {
-            id: "doorman",
-            name: "Doorman",
-            bodyShape: "urn:decentraland:off-chain:base-avatars:BaseMale",
-            wearables: ["urn:decentraland:matic:collections-v2:0xc714bac4b6af6c7407dd4f6587ed332aa21fad84:0", "urn:decentraland:off-chain:base-avatars:brown_pants", 'urn:decentraland:matic:collections-v2:0xbcc888ae057f3490fa0b5c03977af9c80bdd9b49:0' ],
-            emotes: [],
-            expressionTriggerId: "clap",
-            expressionTriggerTimestamp: 0
-        })  
-        Transform.create(this.doorman, {
-            position: Vector3.create(-26,6,1),
-            scale: Vector3.create(1,1,1)
-        })
-
         //create NPCs
         this.createGirlNPC()
-
-        //SHOP OWNER
-        //23,6,16 (BEHIND COUNTER)
-        
+        this.createShopOwnerNPC()
+        this.createTempleShamanNPC()
+        this.createOldLadyNPC()
+        this.createDoormanNPC()
 
         this.candles = []
         this.candleIndexCollected = []
-
 
         //this.foundGirl()
 		
@@ -134,6 +122,174 @@ export class GameManager{
         this.tpVideoRoom.setVideo("videos/toTitleA_medium.mp4", 3, 3)
         
 	}
+
+    createDoormanNPC(){
+        this.doorman = new NPC(this, {
+            id: 'doorman',
+            name: 'Doorman',
+            startPosition: Vector3.create(-26,6,5),
+            startRotation: Quaternion.fromEulerDegrees(0,0,0),
+
+            useAvatar: true,
+            avatarData: {
+                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+                wearables: ["urn:decentraland:matic:collections-v2:0xc714bac4b6af6c7407dd4f6587ed332aa21fad84:0", 
+                    "urn:decentraland:off-chain:base-avatars:brown_pants", 
+                    'urn:decentraland:matic:collections-v2:0xbcc888ae057f3490fa0b5c03977af9c80bdd9b49:0' 
+                ],
+                /* emotes: [],
+                expressionTriggerId: "clap",
+                expressionTriggerTimestamp: 0 */
+            },
+            clickable: true,
+            clickHoverText: 'Talk to Doorman',
+            hasProximityTrigger: true,
+            proximityRadius: 4,
+            dialogs: {
+                'intro': {
+                    text: 'Hello! I need your help!',
+                    nextDialogId: 'quest1',
+                    action: () => {
+                        this.missionState = 'metDoorman'
+                    }
+                },
+                'quest1': {
+                    text: 'Can you find my picture in the house?',
+                    action: () => {
+                        //this.doormanMet = true
+                    }
+                }
+            },
+            startDialogId: 'intro',
+            canGiveItems: true,
+            itemsToGive: ['key']
+        })
+    }
+
+    createOldLadyNPC(){
+        this.oldLady = new NPC(this, {
+            id: 'oldLady',
+            name: 'Old Lady',
+            startPosition: Vector3.create(-26,6,1),
+            startRotation: Quaternion.fromEulerDegrees(0,0,0),
+
+            useAvatar: true,
+            avatarData: {
+                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
+                wearables: [
+                    'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
+                    'urn:decentraland:off-chain:base-avatars:brown_pants'
+                ]
+            },
+            clickable: true,
+            clickHoverText: 'Talk to Old Lady',
+            hasProximityTrigger: true,
+            proximityRadius: 4,
+            dialogs: {
+                'intro': {
+                    text: 'Hello! I need your help!',
+                    nextDialogId: 'quest1',
+                    action: () => {
+                        this.missionState = 'metOldLady'
+                    }
+                },
+                'quest1': {
+                    text: 'Can you find my picture in the house?',
+                    action: () => {
+                        //this.oldLadyMet = true
+                    }
+                }
+            },
+            startDialogId: 'intro',
+            canGiveItems: true,
+            itemsToGive: ['key']
+        })
+    }
+
+    createTempleShamanNPC(){
+        this.templeShaman = new NPC(this, {
+            id: 'templeShaman',
+            name: 'Temple Shaman',
+            startPosition: Vector3.create(-34,39,52),
+            startRotation: Quaternion.fromEulerDegrees(0,0,0),
+
+            useAvatar: true,
+            avatarData: {
+                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+                wearables: [
+                    'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
+                    'urn:decentraland:off-chain:base-avatars:brown_pants'
+                ]
+            },
+            clickable: true,
+            clickHoverText: 'Talk to Temple Shaman',
+            hasProximityTrigger: true,
+            proximityRadius: 4,
+            dialogs: {
+                'intro': {
+                    text: 'Hello! I need your help!',
+                    nextDialogId: 'quest1',
+                    action: () => {
+                        this.missionState = 'metTempleShaman'
+                    }
+                },
+                'quest1': {
+                    text: 'Can you find my picture in the house?',
+                    action: () => {
+                        //this.templeShamanMet = true
+                    }
+                }
+            },
+            startDialogId: 'intro',
+            canGiveItems: true,
+            itemsToGive: ['key']
+        })
+    }
+
+    createShopOwnerNPC(){
+
+        //SHOP OWNER
+        //-23,6,16 (BEHIND COUNTER)
+
+
+        this.shopKeeper = new NPC(this, {
+            id: 'shopKeeper',
+            name: 'Shop Keeper',
+            startPosition: Vector3.create(-23,6,16),
+            startRotation: Quaternion.fromEulerDegrees(0,180,0),
+
+            useAvatar: true,
+            avatarData: {
+                bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
+                wearables: [
+                    'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
+                    'urn:decentraland:off-chain:base-avatars:brown_pants'
+                ]
+            },
+            clickable: true,
+            clickHoverText: 'Talk to ShopKeeper',
+            hasProximityTrigger: true,
+            proximityRadius: 4,
+            dialogs: {
+                'intro': {
+                    text: 'Hello! I need your help!',
+                    nextDialogId: 'quest1',
+                    action: () => {
+                        this.missionState = 'metShopOwner'
+                    }
+                },
+                'quest1': {
+                    text: 'Can you find my picture in the house?',
+                    action: () => {
+                        //this.shopKeeperMet = true
+                    }
+                }
+            },
+            startDialogId: 'intro',
+            canGiveItems: true,
+            itemsToGive: ['key']
+        })
+    }
 
     createGirlNPC(){
         //30,6,59 (start in house)
@@ -220,10 +376,35 @@ export class GameManager{
             // Do whatever comes next after intro video
             console.log("moving player to exploring town")
             movePlayerTo({
-                newRelativePosition: Vector3.create(0,20,0),
+                newRelativePosition: Vector3.create(-34,50,52),//22,20,-18 (player's house position)
                 cameraTarget: Vector3.create(-26,30, 10)
             })
             setUiForMissionState(this, this.missionState)
+        }
+    }
+
+    showDialog(npcName: string, text: string, hasNext: boolean = false, npc?: any) {
+        this.dialogActive = true
+        this.dialogNPCName = npcName
+        this.dialogText = text
+        this.dialogHasNext = hasNext
+        this.currentDialogNPC = npc || null
+        
+        console.log(`Showing dialog from ${npcName}: ${text}`)
+    }
+
+    closeDialog() {
+        this.dialogActive = false
+        this.dialogText = ""
+        this.dialogNPCName = ""
+        this.dialogHasNext = false
+        this.currentDialogNPC = null
+    }
+
+    advanceDialog() {
+        if (this.currentDialogNPC) {
+            // Tell the NPC to show next dialog
+            this.currentDialogNPC.showNextDialog()
         }
     }
 

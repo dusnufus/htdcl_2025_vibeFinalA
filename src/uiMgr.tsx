@@ -9,6 +9,7 @@ import { PlayerInfoModule } from './uiElements/playerInfoModule'
 import { MissionListModule } from './uiElements/missionListModule'
 import { MissionSubListModule } from './uiElements/missionSubListModule'
 import { MessageModule } from './uiElements/messageModule'
+import { DialogModule } from './uiElements/dialogModule'
 
 let gameMgr: GameManager
 
@@ -42,5 +43,6 @@ const uiExploringTown = () => [
   PlayerInfoModule(gameMgr),
   MissionListModule(gameMgr),
   //MissionSubListModule(gameMgr),
-  MessageModule(gameMgr)
+  MessageModule(gameMgr),
+  DialogModule(gameMgr)
 ]

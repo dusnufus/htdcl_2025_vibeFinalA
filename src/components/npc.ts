@@ -270,18 +270,30 @@ export class NPC {
         const dialog = this.config.dialogs[dialogId]
         if (!dialog) return
         
-        console.log(`${this.config.name}: ${dialog.text}`)
-        // TODO: Show in UI
-        // this.gameMgr.showDialog(this.config.name, dialog.text)
+        // Show dialog through GameManager
+        this.gameMgr.showDialog(
+            this.config.name, 
+            dialog.text, 
+            !!dialog.nextDialogId,  // hasNext
+            this  // pass NPC reference
+        )
         
         // Run action if defined
         if (dialog.action) {
             dialog.action()
         }
         
-        // Move to next dialog
+        // Store next dialog ID for later
         if (dialog.nextDialogId) {
             this.currentDialogId = dialog.nextDialogId
+        }
+    }
+
+    showNextDialog() {
+        if (this.currentDialogId && this.config.dialogs[this.currentDialogId]) {
+            this.showDialog(this.currentDialogId)
+        } else {
+            this.gameMgr.closeDialog()
         }
     }
     
