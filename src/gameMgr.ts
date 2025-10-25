@@ -220,6 +220,11 @@ export class GameManager{
     }
 
     closeDialog() {
+        // End the conversation on the NPC before closing
+        if (this.currentDialogNPC) {
+            this.currentDialogNPC.endConversation()
+        }
+        
         this.dialogActive = false
         this.dialogText = ""
         this.dialogNPCName = ""
@@ -264,7 +269,17 @@ export class GameManager{
 const data = {
         staticParts: [
 
-            {name: "stretchedLayoutB", pos: Vector3.create(0,5,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
+            //{name: "stretchedLayoutB", pos: Vector3.create(0,5,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
+            
+            
+            {name: "cliffs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/cliffsB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "lowerTerrain", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/lowerTerrainB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "playerHouseLevel", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/playerHouseLevelB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "templeRun", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/templeRunB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "skyBlocker", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
+                                  
+            
+            
             //{name: "tpVideoRoom", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoRoomA.gltf", scale: Vector3.create(1,1,1)},
             //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
             //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,120,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},

@@ -39,7 +39,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 moveSpeed: 3.5,
                 onComplete: () => {
                     //console.log('Girl ran out of house - ready for player interaction')
-                    gameMgr.girl.startConversation('firstMeeting')
+                    gameMgr.girl.prepareConversation('firstMeeting')
                 }
             },
             'walkToFountain': {
@@ -90,13 +90,19 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                         speaker: 'player',
                         text: 'Of course! Let\'s explore together.',
                         action: () => {
-                            console.log('Player agreed to help')
+                            //console.log('Player agreed to help')
                             //gameMgr.girlMet = true
+                            console.log('Girl first meeting complete_action')
+                            //gameMgr.missionState = 'followingGirl'
+                            //gameMgr.missionTitle = 'FOLLOW THE GIRL'
+                            //gameMgr.girl.startWaypointSet('walkToFountain')
                         }
                     }
                 },
                 onComplete: () => {
+                    console.log('Girl first meeting complete_onComplete')
                     gameMgr.missionState = 'followingGirl'
+                    gameMgr.missionTitle = 'FOLLOW THE GIRL'
                     gameMgr.girl.startWaypointSet('walkToFountain')
                 }
             },

@@ -281,7 +281,7 @@ export class NPC {
         console.log(`NPC ${this.config.name} clicked`)
         this.hasInteracted = true
         
-        // If there's an active conversation, continue it
+        // If there's a prepared conversation, start it
         if (this.currentConversationSet && this.currentDialogId) {
             this.showDialog(this.currentDialogId)
         } 
@@ -318,6 +318,20 @@ export class NPC {
         // Show first dialog
         this.showDialog(this.currentDialogId)
     }
+
+    prepareConversation(conversationId: string) {
+        if (!this.config.conversationSets || !this.config.conversationSets[conversationId]) {
+            console.log(`WARNING: Conversation ${conversationId} not found for ${this.config.name}`)
+            return
+        }
+        
+        // Set up the conversation but don't show dialog yet
+        this.currentConversationId = conversationId
+        this.currentConversationSet = this.config.conversationSets[conversationId]
+        this.currentDialogId = this.currentConversationSet.startDialogId
+        
+        console.log(`${this.config.name} prepared conversation: ${conversationId} (will start on next click)`)
+    }
     
     showDialog(dialogId: string) {
         if (!this.currentConversationSet) return
@@ -340,9 +354,12 @@ export class NPC {
             dialogLine.action()
         }
         
-        // Store next dialog ID
+        // Store next dialog ID or clear if this is the last dialog
         if (dialogLine.nextDialogId) {
             this.currentDialogId = dialogLine.nextDialogId
+        } else {
+            // This is the last dialog in the conversation
+            this.currentDialogId = ''
         }
     }
 
@@ -378,7 +395,7 @@ export class NPC {
         this.currentConversationSet = null
         this.currentDialogId = ''
         
-        this.gameMgr.closeDialog()
+        // Note: UI closing is handled by GameManager.closeDialog()
     }
     
     giveItems() {

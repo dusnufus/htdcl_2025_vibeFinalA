@@ -13,14 +13,26 @@ export function DialogModule(_gameMgr: GameManager) {
     return (
         <UiEntity
             uiTransform={{
-                width: '80%',
-                height: '40%',
-                position: { bottom: '5%' },
+                width: '50%',
+                height: '18%',
+                position: { bottom: '5%', left: '25%' },
                 positionType: 'absolute',
                 flexDirection: 'row',
                 justifyContent: 'space-between',
                 padding: 10
             }}
+            /* uiBackground={{
+                textureMode: 'nine-slices',
+                texture: {
+                src: 'images/ui_9sliceA_50perc.png'
+                },
+                textureSlices: {
+                top: 0.3333,
+                bottom: 0.3333,
+                left: 0.3333,
+                right: 0.3333
+                }
+            }} */
             uiBackground={{ color: Color4.create(0, 0, 0, 0.1) }}
         >
             {/* PLAYER SIDE (LEFT) */}
@@ -129,7 +141,7 @@ export function DialogModule(_gameMgr: GameManager) {
                 uiTransform={{
                     width: '100%',
                     height: 60,
-                    position: { bottom: 10 },
+                    position: { bottom: -20 },
                     positionType: 'absolute',
                     flexDirection: 'row',
                     justifyContent: 'center',
