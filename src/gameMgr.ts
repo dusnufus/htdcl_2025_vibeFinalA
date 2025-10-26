@@ -269,15 +269,25 @@ export class GameManager{
 const data = {
         staticParts: [
 
-            //{name: "stretchedLayoutB", pos: Vector3.create(0,5,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
+            //{name: "tempTerrain_withFountain", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempTerrain_witrhFountain.glb", scale: Vector3.create(1,1,1)},
             
             
-            {name: "cliffs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/cliffsB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "lowerTerrain", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/lowerTerrainB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "playerHouseLevel", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/playerHouseLevelB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "templeRun", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/templeRunB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "skyBlocker", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
-                                  
+            {name: "cliffs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/cliffsB.gltf", scale: Vector3.create(1,1,1)},
+
+            {name: "lowerTerrain", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "playerHouseLevel", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/playerHouseLevelB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "templeRun", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/templeRunB.gltf", scale: Vector3.create(1,1,1)},
+            //{name: "skyBlocker", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
+
+            {name: "fountain", pos: Vector3.create(7.5,12.5,11.125), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/fountain.glb", scale: Vector3.create(1,1,1)},
+            {name: "apartment", pos: Vector3.create(-25.5,10,-11), rot: Quaternion.fromEulerDegrees(0,30,0), src: "models/final/origBuildings/apartments.glb", scale: Vector3.create(1,1,1)},
+            {name: "playerHouse", pos: Vector3.create(42,16.5,-26), rot: Quaternion.fromEulerDegrees(0,330,0), src: "models/final/origBuildings/playerHouse.glb", scale: Vector3.create(1,1,1)},
+            {name: "girlHouse", pos: Vector3.create(34,12.25,57), rot: Quaternion.fromEulerDegrees(0,190,0), src: "models/final/origBuildings/girlHouse.glb", scale: Vector3.create(1,1,1)},
+            {name: "library", pos: Vector3.create(-63,24.25,27), rot: Quaternion.fromEulerDegrees(0,125,0), src: "models/final/origBuildings/library.glb", scale: Vector3.create(1,1,1)},
+            {name: "temple", pos: Vector3.create(-33.5,43.75,65), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/origBuildings/temple.glb", scale: Vector3.create(1,1,1)},
+            {name: "shop", pos: Vector3.create(-22,10.5,16.5), rot: Quaternion.fromEulerDegrees(0,145,0), src: "models/final/origBuildings/shop.glb", scale: Vector3.create(1,1,1)},
+            {name: "church", pos: Vector3.create(36,13,15.5), rot: Quaternion.fromEulerDegrees(0,-100,0), src: "models/final/origBuildings/church.glb", scale: Vector3.create(1,1,1)},
+            {name: "townHall", pos: Vector3.create(7.5,11.4,-9), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/townHall.glb", scale: Vector3.create(1,1,1)},
             
             
             //{name: "tpVideoRoom", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoRoomA.gltf", scale: Vector3.create(1,1,1)},
