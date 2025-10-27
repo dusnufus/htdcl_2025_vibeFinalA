@@ -39,7 +39,7 @@ export function CheckpointTriggerZone(
     _pos: Vector3, 
     _scale: Vector3, 
     _respawnPos: Vector3,
-    _respawnRot: Quaternion,
+    _respawnLookAt: Vector3,
     _debug: boolean = false
 ): Entity {
 
@@ -65,10 +65,7 @@ export function CheckpointTriggerZone(
         // Only update if this isn't already the current checkpoint
         if (_gameMgr.playerMgr.currentCheckpoint !== _checkpointId) {
             console.log(`CheckpointTriggerZone: ${_checkpointId} activated`)
-            _gameMgr.playerMgr.setCheckpoint(_checkpointId, _respawnPos, _respawnRot)
-            
-            // Optional: Show a message to the player
-            //_gameMgr.showMessage(`Checkpoint: ${_checkpointId}`)
+            _gameMgr.playerMgr.setCheckpoint(_checkpointId, _respawnPos, _respawnLookAt)
         }
 
         //no matter if this is the current checkpoint, we need to check if the checkpoints are active

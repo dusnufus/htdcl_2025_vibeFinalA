@@ -25,7 +25,7 @@ export class PlayerManager{
 	// Checkpoint system
     currentCheckpoint: string = 'start'
     checkpointPosition: Vector3 = Vector3.create(0, 0, 0)
-    checkpointRotation: Quaternion = Quaternion.fromEulerDegrees(0, 0, 0)
+    checkpointLookAt: Vector3 = Vector3.create(0, 0, 0)
 
 	checkpointSet: boolean = false
 	headedUp: boolean = true
@@ -53,7 +53,7 @@ export class PlayerManager{
 		//init checkpoint
         this.currentCheckpoint = 'start'
         this.checkpointPosition = Vector3.create(0, 0, 0)
-        this.checkpointRotation = Quaternion.fromEulerDegrees(0, 0, 0)
+        this.checkpointLookAt = Vector3.create(0, 0, 0)
 		
 		this.checkpointSet = false
 		this.headedUp = true
@@ -85,29 +85,21 @@ export class PlayerManager{
 	}
 
 	// Set a new checkpoint
-    setCheckpoint(checkpointId: string, position: Vector3, rotation: Quaternion) {
+    setCheckpoint(checkpointId: string, position: Vector3, lookAt: Vector3) {
         this.currentCheckpoint = checkpointId
         this.checkpointPosition = position
-        this.checkpointRotation = rotation
+        this.checkpointLookAt = lookAt
         console.log(`Checkpoint set: ${checkpointId}`)
-
-		/* if(this.checkpointSet == false){
-			this.checkpointSet = true
-			this.gameMgr.turnOnFallZone()
-		} */
     }
 
     // Respawn at current checkpoint
     respawnAtCheckpoint() {
         console.log(`Respawning at checkpoint: ${this.currentCheckpoint}`)
-        //const playerTransform = Transform.getMutable(engine.PlayerEntity)
 		movePlayerTo({
 			//-34,50,52 (temple landing)
 			newRelativePosition: this.checkpointPosition,
-			cameraTarget: this.checkpointRotation
+			cameraTarget: this.checkpointLookAt
 		})
-        //playerTransform.position = this.checkpointPosition
-        //playerTransform.rotation = this.checkpointRotation
     }
 
 	disableCheckpoints(){

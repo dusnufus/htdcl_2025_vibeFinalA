@@ -112,7 +112,7 @@ export class GameManager{
                                                                     data.checkpointTriggerZones_up[ctz].pos, 
                                                                     data.checkpointTriggerZones_up[ctz].scale, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnPos, 
-                                                                    data.checkpointTriggerZones_up[ctz].respawnRot, 
+                                                                    data.checkpointTriggerZones_up[ctz].respawnLookAt, 
                                                                     true))
         }
         
@@ -166,7 +166,7 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_down[ctz].pos, 
                                                                         data.checkpointTriggerZones_down[ctz].scale, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnPos, 
-                                                                        data.checkpointTriggerZones_down[ctz].respawnRot, 
+                                                                        data.checkpointTriggerZones_down[ctz].respawnLookAt, 
                                                                         true))
             }
             //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
@@ -180,7 +180,7 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_up[ctz].pos, 
                                                                         data.checkpointTriggerZones_up[ctz].scale, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnPos, 
-                                                                        data.checkpointTriggerZones_up[ctz].respawnRot, 
+                                                                        data.checkpointTriggerZones_up[ctz].respawnLookAt, 
                                                                         true))
             }
             //spawn the reverse checkpoints trigger zone (at temple landing)
@@ -494,21 +494,21 @@ const data = {
 
         ],
         checkpointTriggerZones_up: [        
-            {name: "topOfTunnel", pos: Vector3.create(-46.95,32,-26.75), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-46,28,-23.4), respawnRot: Quaternion.fromEulerDegrees(0,344,0)},
-            {name: "topOfBoneBridge", pos: Vector3.create(-47.8,29.87,11.3), scale: Vector3.create(10,10,10), respawnPos: Vector3.create(-44.5,27,14.9), respawnRot: Quaternion.fromEulerDegrees(0,71,0)},
-            {name: "endOfRun", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.8,33,51.1), respawnRot: Quaternion.fromEulerDegrees(0,359,0)},
-            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(2.65,39,59.5), respawnRot: Quaternion.fromEulerDegrees(0,250,0)},
-            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-10.6,41,56.6), respawnRot: Quaternion.fromEulerDegrees(0,206,0)},
-            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-21.4,43,29.75), respawnRot: Quaternion.fromEulerDegrees(0,290,0)},
-            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,37.5), respawnRot: Quaternion.fromEulerDegrees(0,14,0)},
+            {name: "topOfTunnel", pos: Vector3.create(-46.95,32,-26.75), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-46,28,-23.4), respawnLookAt: Vector3.create(-47.8,29.87,11.3)},
+            {name: "topOfBoneBridge", pos: Vector3.create(-47.8,29.87,11.3), scale: Vector3.create(10,10,10), respawnPos: Vector3.create(-44.5,27,14.9), respawnLookAt: Vector3.create(17,34,50.25)},
+            {name: "endOfRun", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.8,33,51.1), respawnLookAt: Vector3.create(1.75,40,58)},
+            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(2.65,39,59.5), respawnLookAt: Vector3.create(-10.75,42,55)},
+            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-10.6,41,56.6), respawnLookAt: Vector3.create(-23,44,31.6)},
+            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-21.4,43,29.75), respawnLookAt: Vector3.create(-44.5,46,39.5)},
+            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,37.5), respawnLookAt: Vector3.create(-39.5,46,53)},
         ],
         checkpointTriggerZones_down: [        
-            {name: "templeLanding", pos: Vector3.create(-39.5,46,53), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-34.5,45,54), respawnRot: Quaternion.fromEulerDegrees(0,256,0)},
-            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,39.25), respawnRot: Quaternion.fromEulerDegrees(0,95,0)},
-            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-23,43,28.65), respawnRot: Quaternion.fromEulerDegrees(0,37,0)},
-            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-12.7,41,54.9), respawnRot: Quaternion.fromEulerDegrees(0,73,0)},
-            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-0.25,39,58.75), respawnRot: Quaternion.fromEulerDegrees(0,76,0)},
-            {name: "bottomOfStairs", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.65,33,50.85), respawnRot: Quaternion.fromEulerDegrees(0,238,0)},
-            {name: "libraryEndOfRun", pos: Vector3.create(-35.85,30,16), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-43.3,27,17), respawnRot: Quaternion.fromEulerDegrees(0,244,0)}
+            {name: "templeLanding", pos: Vector3.create(-39.5,46,53), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-34.5,45,54), respawnLookAt: Vector3.create(-44.5,46,39.5)},
+            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,39.25), respawnLookAt: Vector3.create(-23,44,31.6)},
+            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-23,43,28.65), respawnLookAt: Vector3.create(-10.75,42,55)},
+            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-12.7,41,54.9), respawnLookAt: Vector3.create(1.75,40,58)},
+            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-0.25,39,58.75), respawnLookAt: Vector3.create(17,34,50.25)},
+            {name: "bottomOfStairs", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.65,33,50.85), respawnLookAt: Vector3.create(-35.85,30,16)},
+            {name: "libraryEndOfRun", pos: Vector3.create(-35.85,30,16), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-43.3,27,17), respawnLookAt: Vector3.create(-46.95,32,-26.75)}
         ],
     }
