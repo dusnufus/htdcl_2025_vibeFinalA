@@ -16,11 +16,21 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"pHouseLevel"
+			"name":"pHouseLevel",
+			"translation":[
+				0,
+				2,
+				0
+			]
 		},
 		{
 			"mesh":1,
-			"name":"pHouseLevel_collider"
+			"name":"pHouseLevel_collider",
+			"translation":[
+				0,
+				2,
+				0
+			]
 		}
 	],
 	"materials":[

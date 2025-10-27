@@ -4,14 +4,14 @@ import {
   } from '@dcl/sdk/ecs'
   
   import ReactEcs, { Button, Label, ReactEcsRenderer, UiEntity } from '@dcl/sdk/react-ecs'
-import { Color4 } from '@dcl/sdk/math'
+import { Color4, Quaternion } from '@dcl/sdk/math'
 
 export function CoordsModule() {
     return (
       <UiEntity
       uiTransform={{
         width: 300,
-        height: 20,
+        height: 40,
         margin: { left: '220 px', top: '0 px' },
         flexDirection: 'column',
         alignItems: 'center',
@@ -34,11 +34,11 @@ export function CoordsModule() {
     const playerPosition = Transform.getOrNull(engine.PlayerEntity)
     if (!playerPosition) return ' no data yet'
     let { x, y, z } = playerPosition.position
-
-    //temp adjustments for placing items
-   /*  x -= 192;
-    y -= 18;
-    z += 32; */
+    let rotation = playerPosition.rotation
+      
+    // Convert quaternion to Euler angles (in radians) then to degrees
+    const euler = Quaternion.toEulerAngles(rotation)
+    //the Quaternion to euler is giving degrees, so we don't need to convert
     
-    return `{X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, z: ${z.toFixed(2)} }`
+    return `Pos: {X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)}}\nRot: Y: ${euler.y.toFixed(2)}`
   }

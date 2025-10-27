@@ -4,20 +4,22 @@ import { PlayerManager } from './playerMgr'
 import {ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
 import {setUiForMissionState } from './uiMgr'
-import { CandleCollectable } from './components/collectables'
-import { HouseTriggerZone} from './components/triggerZones'
+import { CandleCollectable, JarCollectable } from './components/collectables'
+
+import { HouseTriggerZone, CheckpointTriggerZone, FallTriggerZone, DisableCheckpointsTriggerZone, ReverseCheckpointsTriggerZone, ToggleUpperFallZoneTriggerZone} from './components/triggerZones'
 //import { TempZoneClicker } from './components/tempZoneClickers'
 import { TpVideoRoom } from './components/tpVideoRoom'
 //import { GameTimer } from './gameTimer'
 import { movePlayerTo, triggerEmote  } from '~system/RestrictedActions'
 import { NPC } from './components/npc'
+
 import { 
     createGirlNPC, 
     createShopOwnerNPC, 
     createTempleShamanNPC, 
     createOldLadyNPC, 
     createDoormanNPC, 
-    createLibrarianNPC 
+    createLibrarianNPC
 } from './npcCreation'
 
 export class GameManager{
@@ -45,27 +47,6 @@ export class GameManager{
 
     tpVideoRoom: TpVideoRoom
 
-    //introLoading, introPostLoad, introPlaying, introPostWait, 
-    // mission1 (EXPLORE THE TOWN)
-    //foundGirl
-    //triggers animation of girl to you outside the house
-    //interact with girl to start dialog
-    //dialog where she asks for help
-    //girl walks toward fountain and stops there
-    //when you catch up to her, she asks what day it is ... intro to ritual dialog
-    //girl walks back to her house and waits outside for you to go in and find the picture for her
-    //collect picture
-    //come back to the girl and interact
-    //dialog for starting shop/food mission
-    //she wanders to the shop to wait for you to get cat food
-    //interact with shop owner to start shop mission
-    //shop owner dialog 
-    //new sub-mission : ????
-    
-    // mission2 (FIND THE RITUAL TREE)
-    // mission3 (COMPLETE THE RITUAL)
-    // mission4 (COMPLETE THE GAME)
-
     // Dialog system
     dialogActive: boolean = false
     dialogNPCName: string = ""
@@ -82,10 +63,18 @@ export class GameManager{
     candles: Array<Entity>
     candleIndexCollected: Array<number>
 
+    jar: any
+
+    checkpointTriggerZones: Array<Entity>
+    fallTriggerZone: any
+    disableCheckpointsTriggerZone: any
+    reverseCheckpointsTriggerZone: Entity
+    upperFallZoneToggleTriggerZone: Entity
+
 	constructor(){
 		//console.log("GameManager: constructor running")
 
-        this.playerMgr = new PlayerManager()
+        this.playerMgr = new PlayerManager(this)
 
 		this.staticEntities = []
         this.placeStaticEntities()
@@ -103,7 +92,7 @@ export class GameManager{
         this.missionTitle = "EXPLORE THE TOWN"
 
         //activate a trigger for the girl's house
-        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(30,6,55), Vector3.create(15,2.5,15), true)
+        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), true)
 	
         //set the UI for the mission state
         setUiForMissionState(this, this.missionState)
@@ -116,7 +105,99 @@ export class GameManager{
         this.candles = []
         this.candleIndexCollected = []
 
+        this.checkpointTriggerZones = []
+        //in the beginning, we are comingup the tunnel and spawn the upward checkpoint trigger zones
+        for(var ctz = 0; ctz < data.checkpointTriggerZones_up.length; ctz++){
+            this.checkpointTriggerZones.push(CheckpointTriggerZone( this, data.checkpointTriggerZones_up[ctz].name, 
+                                                                    data.checkpointTriggerZones_up[ctz].pos, 
+                                                                    data.checkpointTriggerZones_up[ctz].scale, 
+                                                                    data.checkpointTriggerZones_up[ctz].respawnPos, 
+                                                                    data.checkpointTriggerZones_up[ctz].respawnRot, 
+                                                                    true))
+        }
+        
+        //the fall zone should not be on at this point, but would only be on if checkpoints were being used already
+        if(this.playerMgr.checkpointSet == true){
+            console.log("GameManager: turning on fall zone")
+            this.turnOnFallZone()
+        }
+
+        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
+
+        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), true)
 	}
+
+    adjustUpperFallZone(){
+        if(this.playerMgr.upperZoneActive == false){
+            this.playerMgr.upperZoneActive = true
+            const mutableTransform_fz = Transform.getMutable(this.fallTriggerZone)
+            mutableTransform_fz.position = Vector3.create(0,22,0)
+
+            const mutableTransform_toggle = Transform.getMutable(this.upperFallZoneToggleTriggerZone)
+            mutableTransform_toggle.position = Vector3.create(11.82,36,58.3)
+        } else {
+            this.playerMgr.upperZoneActive = false
+            const mutableTransform_fz = Transform.getMutable(this.fallTriggerZone)
+            mutableTransform_fz.position = Vector3.create(0,10,0)
+
+            const mutableTransform_toggle = Transform.getMutable(this.upperFallZoneToggleTriggerZone)
+            mutableTransform_toggle.position = Vector3.create(1.75,40,58)
+        }
+
+    }
+
+    reverseCheckpoints(){
+        //remove the reverse checkpoints trigger zone )from current location)
+        engine.removeEntity(this.reverseCheckpointsTriggerZone)
+
+        //remove the current checkpoint trigger zones
+        for(var ctz = 0; ctz < this.checkpointTriggerZones.length; ctz++){
+            engine.removeEntity(this.checkpointTriggerZones[ctz])
+        }
+        //zero out the array
+        this.checkpointTriggerZones = []
+
+        if(this.playerMgr.headedUp == true){
+            //turn the player around
+            this.playerMgr.headedUp = false
+            //create the downward checkpoint trigger zones
+            for(var ctz = 0; ctz < data.checkpointTriggerZones_down.length; ctz++){
+                this.checkpointTriggerZones.push(CheckpointTriggerZone( this, data.checkpointTriggerZones_down[ctz].name, 
+                                                                        data.checkpointTriggerZones_down[ctz].pos, 
+                                                                        data.checkpointTriggerZones_down[ctz].scale, 
+                                                                        data.checkpointTriggerZones_down[ctz].respawnPos, 
+                                                                        data.checkpointTriggerZones_down[ctz].respawnRot, 
+                                                                        true))
+            }
+            //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), true)
+        } else {
+            //turn the player around
+            this.playerMgr.headedUp = true
+            //create the upward checkpoint trigger zones
+            for(var ctz = 0; ctz < data.checkpointTriggerZones_up.length; ctz++){
+                this.checkpointTriggerZones.push(CheckpointTriggerZone( this, data.checkpointTriggerZones_up[ctz].name, 
+                                                                        data.checkpointTriggerZones_up[ctz].pos, 
+                                                                        data.checkpointTriggerZones_up[ctz].scale, 
+                                                                        data.checkpointTriggerZones_up[ctz].respawnPos, 
+                                                                        data.checkpointTriggerZones_up[ctz].respawnRot, 
+                                                                        true))
+            }
+            //spawn the reverse checkpoints trigger zone (at temple landing)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
+        }
+    }
+
+    turnOnFallZone(){
+        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), true)
+        //also, create the disable checkpoints trigger zone
+        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), true)
+    }
+
+    turnOffFallZone(){
+        engine.removeEntity(this.fallTriggerZone)
+        engine.removeEntity(this.disableCheckpointsTriggerZone)
+    }
 
     videoComplete(){
 
@@ -134,8 +215,8 @@ export class GameManager{
             //move the player to the player's house starting point
             movePlayerTo({
                 //-34,50,52 (temple landing)
-                newRelativePosition: Vector3.create(22,20,-18),//22,20,-18 (player's house position)
-                cameraTarget: Vector3.create(-26,30, 10)
+                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,19,-19 (player's house position)
+                cameraTarget: Vector3.create(10,27,9)
             })
 
             //recall the UI for the new mission state
@@ -158,15 +239,15 @@ export class GameManager{
 
         //start the girl running out of the house
         this.girl.startWaypointSet('runOutOfHouse')
+        
+    }
 
+    candleMissionInit(){
 
-
-        //this.messageText = "in"
-
-        //console.log("foundGirl: true")
+        this.girl.startWaypointSet('walkToChurch')
 
         //spawn candles
-        /* for(var c = 0; c < data.candleCollectables.length; c++){
+        for(var c = 0; c < data.candleCollectables.length; c++){
 			
             var e: Entity = CandleCollectable(    this, 
                                                         c, 
@@ -178,7 +259,7 @@ export class GameManager{
                                 
 
 			this.candles.push(e)
-		} */
+		}
     }
 
     candleCollected(_candleIndex:number){
@@ -186,8 +267,60 @@ export class GameManager{
             this.candleIndexCollected.push(_candleIndex)
             this.playerMgr.candleCount ++;
             engine.removeEntity(this.candles[_candleIndex])
-            this.itemCheck();
+
+            //the item check would only be if we do all the ritual collections in any order. 
+            //for now, we just check if we have enough candles.
+            if(this.playerMgr.candleCount >= 7){
+                this.candleMissionComplete()
+            }
+            //this.itemCheck();
         }
+    }
+
+    candleMissionComplete(){
+        //remove candles
+        /* for(var c = 0; c < this.candles.length; c++){
+            engine.removeEntity(this.candles[c])
+        }
+        this.candles = [] */
+        this.missionState = 'candlesCollected'
+        this.missionTitle = 'TALK TO THE GIRL'
+        this.girl.startWaypointSet('endTheSearch')
+    }
+
+    shopKeeperGivingJar(){
+        this.missionState = 'takeTheJar'
+        this.missionTitle = 'TAKE THE JAR'
+        //spawn the jar
+        this.jar = JarCollectable(this, "models/final/emptyJarB.gltf", Vector3.create(-23.65,11.85,16.55), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
+        
+    }
+
+    jarCollected(){
+
+        this.missionState = 'haveTheJar'
+        this.missionTitle = 'TALK TO THE GIRL'
+
+        this.girl.prepareConversation('tellAboutJar')
+
+        engine.removeEntity(this.jar)
+        //this.jar = null
+    }
+
+    prepareTheGraveyard(){
+
+        //TODO: add the graveyard trigger zone
+        
+
+        this.missionState = 'headed to the graveyard'
+        this.missionTitle = 'COLLECT THE WHISPER'
+        this.girl.startWaypointSet('walkToGraveyard')
+    }
+
+    arrivedAtGraveyard(){
+        this.missionState = 'arrivedAtGraveyard'
+        //TODO: animate the gate opening
+        //TODO: remove the collider keeping player out of the graveyard?
     }
 
     itemCheck(){
@@ -269,19 +402,23 @@ export class GameManager{
 const data = {
         staticParts: [
 
-            //{name: "tempTerrain_withFountain", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempTerrain_witrhFountain.glb", scale: Vector3.create(1,1,1)},
+            {name: "tempTerrain_withPaths", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB_paths.gltf", scale: Vector3.create(1,1,1)},
             
             
-            {name: "cliffs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/cliffsB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "cliffs", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/cliffsB.gltf", scale: Vector3.create(1,1,1)},
 
-            {name: "lowerTerrain", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB.gltf", scale: Vector3.create(1,1,1)},
+            //{name: "lowerTerrain", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB.gltf", scale: Vector3.create(1,1,1)},
             {name: "playerHouseLevel", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/playerHouseLevelB.gltf", scale: Vector3.create(1,1,1)},
             {name: "templeRun", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/templeRunB.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "skyBlocker", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "skyBlocker", pos: Vector3.create(0,60,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "boneBridgeLanding", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeLandingB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "boneBridge", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "tempBridges", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempBridgesB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "cemetaryGate", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryGateB.gltf", scale: Vector3.create(1,1,1)},
 
             {name: "fountain", pos: Vector3.create(7.5,12.5,11.125), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/fountain.glb", scale: Vector3.create(1,1,1)},
             {name: "apartment", pos: Vector3.create(-25.5,10,-11), rot: Quaternion.fromEulerDegrees(0,30,0), src: "models/final/origBuildings/apartments.glb", scale: Vector3.create(1,1,1)},
-            {name: "playerHouse", pos: Vector3.create(42,16.5,-26), rot: Quaternion.fromEulerDegrees(0,330,0), src: "models/final/origBuildings/playerHouse.glb", scale: Vector3.create(1,1,1)},
+            {name: "playerHouse", pos: Vector3.create(42,18.5,-26), rot: Quaternion.fromEulerDegrees(0,330,0), src: "models/final/origBuildings/playerHouse.glb", scale: Vector3.create(1,1,1)},
             {name: "girlHouse", pos: Vector3.create(34,12.25,57), rot: Quaternion.fromEulerDegrees(0,190,0), src: "models/final/origBuildings/girlHouse.glb", scale: Vector3.create(1,1,1)},
             {name: "library", pos: Vector3.create(-63,24.25,27), rot: Quaternion.fromEulerDegrees(0,125,0), src: "models/final/origBuildings/library.glb", scale: Vector3.create(1,1,1)},
             {name: "temple", pos: Vector3.create(-33.5,43.75,65), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/origBuildings/temple.glb", scale: Vector3.create(1,1,1)},
@@ -289,7 +426,11 @@ const data = {
             {name: "church", pos: Vector3.create(36,13,15.5), rot: Quaternion.fromEulerDegrees(0,-100,0), src: "models/final/origBuildings/church.glb", scale: Vector3.create(1,1,1)},
             {name: "townHall", pos: Vector3.create(7.5,11.4,-9), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/townHall.glb", scale: Vector3.create(1,1,1)},
             
-            
+
+            //graveyard
+            {name: "coffinBase", pos: Vector3.create(4.4,11.6,31.5), rot: Quaternion.fromEulerDegrees(0,238,0), src: "models/ch/HWN20_Grave_01.glb", scale: Vector3.create(1,1,1)},
+            {name: "coffinLid", pos: Vector3.create(1.85,11.3,34), rot: Quaternion.fromEulerDegrees(0,182,0), src: "models/ch/HWN20_Grave_02.glb", scale: Vector3.create(1,1,1)},
+        
             //{name: "tpVideoRoom", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoRoomA.gltf", scale: Vector3.create(1,1,1)},
             //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
             //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,120,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
@@ -298,14 +439,8 @@ const data = {
             //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_libraries.glb", scale: Vector3.create(1,1,1)},
             //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_aptTownHall.glb", scale: Vector3.create(1,1,1)},
             
-            
-
-            
             //{name: "groundPartsA_00", pos: Vector3.create(20,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/groundPartsA_00.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "groundPartsA_00", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/groundPartsA_00.gltf", scale: Vector3.create(1,1,1)},
-            
-            //{name: "church", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/church1_finalA.gltf", scale: Vector3.create(1,1,1)},
-
+            //{name: "groundPartsA_00", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/groundPartsA_00.gltf", scale: Vector3.create(
 
             //{name: "testTerrain", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/testTerrain_temp.glb", scale: Vector3.create(1,1,1)},
             //{name: "halfGateA", pos: Vector3.create(-8,1,-30), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/halfGateA.gltf", scale: Vector3.create(1,1,1)},
@@ -322,10 +457,8 @@ const data = {
 
             //{name: "roughPitA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/roughPitA.gltf", scale: Vector3.create(1,1,1)},
 
-
             /* {name: "glowingFloor", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/8px8p_glowingPlane.glb", scale: Vector3.create(1,1,1)},
 
-            
             {name: "bed2", pos: Vector3.create(18,0,-17.4), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/bed2_rough.glb", scale: Vector3.create(1,1,1)},
             {name: "church1", pos: Vector3.create(0,0,57), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/church1_rough.glb", scale: Vector3.create(1,1,1)},
 
@@ -348,19 +481,34 @@ const data = {
         ],
         candleCollectables: [
 
-            {name: "candle17", pos: Vector3.create(21,8,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle18", pos: Vector3.create(21,8,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle19", pos: Vector3.create(21,8,12), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(21,8,11.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle17", pos: Vector3.create(21,8,11), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle20", pos: Vector3.create(21,8,10.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(21,8,10), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle17", pos: Vector3.create(22.25,16,15), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle18", pos: Vector3.create(22.25,16,14.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle19", pos: Vector3.create(22.25,16,14), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(22.25,16,13.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle17", pos: Vector3.create(22.25,16,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle20", pos: Vector3.create(22.25,16,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(22.25,16,12), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
             
         ],
         placementZones: [
 
         ],
-        triggerZones: [
-
+        checkpointTriggerZones_up: [        
+            {name: "topOfTunnel", pos: Vector3.create(-46.95,32,-26.75), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-46,28,-23.4), respawnRot: Quaternion.fromEulerDegrees(0,344,0)},
+            {name: "topOfBoneBridge", pos: Vector3.create(-47.8,29.87,11.3), scale: Vector3.create(10,10,10), respawnPos: Vector3.create(-44.5,27,14.9), respawnRot: Quaternion.fromEulerDegrees(0,71,0)},
+            {name: "endOfRun", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.8,33,51.1), respawnRot: Quaternion.fromEulerDegrees(0,359,0)},
+            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(2.65,39,59.5), respawnRot: Quaternion.fromEulerDegrees(0,250,0)},
+            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-10.6,41,56.6), respawnRot: Quaternion.fromEulerDegrees(0,206,0)},
+            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-21.4,43,29.75), respawnRot: Quaternion.fromEulerDegrees(0,290,0)},
+            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,37.5), respawnRot: Quaternion.fromEulerDegrees(0,14,0)},
+        ],
+        checkpointTriggerZones_down: [        
+            {name: "templeLanding", pos: Vector3.create(-39.5,46,53), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-34.5,45,54), respawnRot: Quaternion.fromEulerDegrees(0,256,0)},
+            {name: "landingA", pos: Vector3.create(-44.5,46,39.5), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-46.75,45,39.25), respawnRot: Quaternion.fromEulerDegrees(0,95,0)},
+            {name: "landingB", pos: Vector3.create(-23,44,31.6), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-23,43,28.65), respawnRot: Quaternion.fromEulerDegrees(0,37,0)},
+            {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-12.7,41,54.9), respawnRot: Quaternion.fromEulerDegrees(0,73,0)},
+            {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-0.25,39,58.75), respawnRot: Quaternion.fromEulerDegrees(0,76,0)},
+            {name: "bottomOfStairs", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.65,33,50.85), respawnRot: Quaternion.fromEulerDegrees(0,238,0)},
+            {name: "libraryEndOfRun", pos: Vector3.create(-35.85,30,16), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-43.3,27,17), respawnRot: Quaternion.fromEulerDegrees(0,244,0)}
         ],
     }

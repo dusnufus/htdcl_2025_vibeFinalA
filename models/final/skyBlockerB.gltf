@@ -15,13 +15,18 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"skyBlocker"
+			"name":"skyBlocker",
+			"scale":[
+				0.800000011920929,
+				1,
+				0.800000011920929
+			]
 		}
 	],
 	"materials":[
 		{
 			"doubleSided":true,
-			"name":"Pirate.003",
+			"name":"Pirate",
 			"pbrMetallicRoughness":{
 				"baseColorTexture":{
 					"index":0
@@ -55,8 +60,8 @@
 	"images":[
 		{
 			"mimeType":"image/png",
-			"name":"PiratesPack_TX.png",
-			"uri":"PiratesPack_TX_png.png"
+			"name":"PiratesPack_TX",
+			"uri":"PiratesPack_TX.png"
 		}
 	],
 	"accessors":[
@@ -66,12 +71,12 @@
 			"count":24,
 			"max":[
 				100,
-				51,
+				2,
 				100
 			],
 			"min":[
 				-100,
-				49,
+				0,
 				-100
 			],
 			"type":"VEC3"

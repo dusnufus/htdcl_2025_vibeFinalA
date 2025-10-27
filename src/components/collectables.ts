@@ -31,3 +31,31 @@ export function CandleCollectable(_gameMgr: GameManager, _index:number, _srcPath
     return e
 
 }
+
+export function JarCollectable(_gameMgr: GameManager,_srcPath:string, _pos: Vector3, _scale: Vector3, _rot: Quaternion): Entity{
+
+    var e = engine.addEntity()
+    GltfContainer.create(e, {
+        src: _srcPath
+    })
+
+    Transform.create(e, {
+        position: _pos,
+        scale: _scale,
+        rotation: _rot
+    })
+
+    pointerEventsSystem.onPointerDown(
+        e,
+        () => {
+            _gameMgr.jarCollected()
+        },
+        {
+            button: InputAction.IA_POINTER,
+            hoverText: "TAKE THE JAR"
+        }
+    )
+
+    return e
+
+}

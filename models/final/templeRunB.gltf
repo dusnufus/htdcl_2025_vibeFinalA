@@ -51,7 +51,7 @@
 			]
 		},
 		{
-			"name":"Mesh_0.006",
+			"name":"Mesh_0.007",
 			"primitives":[
 				{
 					"attributes":{
@@ -82,107 +82,107 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"max":[
 				22.955039978027344,
 				34,
 				-6.14910888671875
 			],
 			"min":[
-				-61.714046478271484,
+				-75.9546127319336,
 				1.1920928955078125e-07,
-				-62.30046081542969
+				-77.51848602294922
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2361,
+			"count":2499,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"max":[
 				22.955039978027344,
 				34,
 				-6.14910888671875
 			],
 			"min":[
-				-61.714046478271484,
+				-75.9546127319336,
 				1.1920928955078125e-07,
-				-62.30046081542969
+				-77.51848602294922
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":1089,
+			"count":1163,
 			"type":"VEC2"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":13068,
+			"byteLength":13956,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":13068,
-			"byteOffset":13068,
+			"byteLength":13956,
+			"byteOffset":13956,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":8712,
-			"byteOffset":26136,
+			"byteLength":9304,
+			"byteOffset":27912,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4722,
-			"byteOffset":34848,
+			"byteLength":4998,
+			"byteOffset":37216,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":13068,
-			"byteOffset":39572,
+			"byteLength":13956,
+			"byteOffset":42216,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":13068,
-			"byteOffset":52640,
+			"byteLength":13956,
+			"byteOffset":56172,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":8712,
-			"byteOffset":65708,
+			"byteLength":9304,
+			"byteOffset":70128,
 			"target":34962
 		}
 	],
@@ -194,7 +194,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":74420,
+			"byteLength":79432,
 			"uri":"templeRunB.bin"
 		}
 	]

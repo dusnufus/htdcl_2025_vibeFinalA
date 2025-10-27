@@ -51,7 +51,7 @@
 			]
 		},
 		{
-			"name":"Plane.089",
+			"name":"Plane.011",
 			"primitives":[
 				{
 					"attributes":{
@@ -82,107 +82,107 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"max":[
 				63.85848617553711,
 				50,
 				41.58415603637695
 			],
 			"min":[
-				-64.90157318115234,
+				-75.9546127319336,
 				0,
-				-71.68975830078125
+				-77.51848602294922
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":756,
+			"count":2391,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"max":[
 				63.85848617553711,
 				50,
 				41.58415603637695
 			],
 			"min":[
-				-64.90157318115234,
+				-75.9546127319336,
 				0,
-				-71.68975830078125
+				-77.51848602294922
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":504,
+			"count":1088,
 			"type":"VEC2"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6048,
+			"byteLength":13056,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":6048,
+			"byteLength":13056,
+			"byteOffset":13056,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":12096,
+			"byteLength":8704,
+			"byteOffset":26112,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1512,
-			"byteOffset":16128,
+			"byteLength":4782,
+			"byteOffset":34816,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":17640,
+			"byteLength":13056,
+			"byteOffset":39600,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":23688,
+			"byteLength":13056,
+			"byteOffset":52656,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":29736,
+			"byteLength":8704,
+			"byteOffset":65712,
 			"target":34962
 		}
 	],
@@ -194,7 +194,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":33768,
+			"byteLength":74416,
 			"uri":"cliffsB.bin"
 		}
 	]

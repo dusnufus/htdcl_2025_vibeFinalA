@@ -49,6 +49,7 @@ export interface NPCConfig {
     
     // Model options
     useAvatar: boolean
+    useDefaultAvatar: boolean
     avatarData?: {
         bodyShape: string
         wearables: string[]
@@ -110,20 +111,26 @@ export class NPC {
         this.entity = engine.addEntity()
         
         // Add visual representation
-        if (_config.useAvatar && _config.avatarData) {
-            AvatarShape.create(this.entity, {
-                id: _config.id,
-                name: _config.name,
-                bodyShape: _config.avatarData.bodyShape,
-                wearables: _config.avatarData.wearables,
-                emotes: [],
-                expressionTriggerId: 'wave',
-                expressionTriggerTimestamp: 0
-            })
-            
+        if (_config.useAvatar) {
+
+            if (_config.avatarData && !_config.useDefaultAvatar) {
+                    AvatarShape.create(this.entity, {
+                    id: _config.id,
+                    name: _config.name,
+                    bodyShape: _config.avatarData.bodyShape,
+                    wearables: _config.avatarData.wearables,
+                    emotes: [],
+                    expressionTriggerId: 'wave',
+                    expressionTriggerTimestamp: 0
+                })
+            }
+            else {
+                AvatarShape.create(this.entity)
+            }
+
             // Create a child entity for the collider
             this.colliderEntity = engine.addEntity()
-            
+                
             // Position it centered on the avatar (offset up by ~1 unit to center on body)
             Transform.create(this.colliderEntity, {
                 parent: this.entity,  // Parent to the NPC entity
@@ -135,7 +142,8 @@ export class NPC {
             MeshCollider.setBox(this.colliderEntity)
             
             // Optional: Add MeshRenderer to visualize during testing
-             //MeshRenderer.setBox(this.colliderEntity)
+            //MeshRenderer.setBox(this.colliderEntity)
+            
 
         } else if (_config.modelPath) {
             GltfContainer.create(this.entity, {
@@ -415,7 +423,7 @@ export class NPC {
         
         this.currentWaypointSetId = setId
         this.currentWaypointSet = this.config.waypointSets[setId]
-        this.currentWaypointIndex = 0
+        this.currentWaypointIndex = -1  // Changed from 0 to -1
         
         console.log(`${this.config.name} starting waypoint set: ${setId}`)
         this.moveToNextWaypoint()

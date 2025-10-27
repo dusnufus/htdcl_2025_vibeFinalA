@@ -11,15 +11,17 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
     return new NPC(gameMgr, {
         id: 'girl',
         name: 'Girl',
-        startPosition: Vector3.create(30, 6, 59),
+        startPosition: Vector3.create(30, 12.8, 54.5),
         startRotation: Quaternion.fromEulerDegrees(0, 180, 0),
         
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
-                'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
-                'urn:decentraland:off-chain:base-avatars:brown_pants'
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
+                //'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',//(spopky girl)
             ]
         },
         
@@ -32,8 +34,8 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
             'runOutOfHouse': {
                 id: 'runOutOfHouse',
                 waypoints: [
-                    { position: Vector3.create(32, 6, 56), rotation: Quaternion.fromEulerDegrees(0, 180, 0), waitTime: 0 },
-                    { position: Vector3.create(30, 6, 44), rotation: Quaternion.fromEulerDegrees(0, 180, 0), waitTime: 0 }
+                    { position: Vector3.create(32.3, 12.8, 51.5), rotation: Quaternion.fromEulerDegrees(0, 180, 0), waitTime: 0 },
+                    { position: Vector3.create(32.25, 12.35, 44.5), rotation: Quaternion.fromEulerDegrees(0, 180, 0), waitTime: 0 }
                 ],
                 loopWaypoints: false,
                 moveSpeed: 3.5,
@@ -45,15 +47,122 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
             'walkToFountain': {
                 id: 'walkToFountain',
                 waypoints: [
-                    { position: Vector3.create(20, 7, 30), rotation: Quaternion.fromEulerDegrees(0, 90, 0), waitTime: 1 },
-                    { position: Vector3.create(10, 8, 16), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 0 }
+                    { position: Vector3.create(30.3,12.3,41.6), rotation: Quaternion.fromEulerDegrees(0, 215, 0), waitTime: 0 },
+                    { position: Vector3.create(28.85,12.25,38.2), rotation: Quaternion.fromEulerDegrees(0, 215, 0), waitTime: 0 },
+                    { position: Vector3.create(24.25,12.25,35.75), rotation: Quaternion.fromEulerDegrees(0, 215, 0), waitTime: 0 },
+                    { position: Vector3.create(20.3,12.15,34.8), rotation: Quaternion.fromEulerDegrees(0, 215, 0), waitTime: 0 },
+                    { position: Vector3.create(17.15,12.15,31.15), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 0 },
+                    { position: Vector3.create(13.85,12.25,23.9), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 0 },
+                    { position: Vector3.create(4.1,12.1,19.8), rotation: Quaternion.fromEulerDegrees(0, 90, 0), waitTime: 0 },
+                    { position: Vector3.create(4.25,12.6,15.65), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 0 },
+                    { position: Vector3.create(2.2,12.6,11.65), rotation: Quaternion.fromEulerDegrees(0, 154, 0), waitTime: 0 },
                 ],
                 loopWaypoints: false,
-                moveSpeed: 2.0,
-                // onComplete: () => {
-                //     console.log('Girl arrived at fountain')
-                //     gameMgr.girl.startConversation('atFountain')
-                // }
+                moveSpeed: 3.5,
+                 onComplete: () => {
+                    console.log('Girl arrived at fountain')
+                     //gameMgr.girl.startConversation('atFountain')
+                     gameMgr.girl.prepareConversation('atFountain')
+                 }
+            },
+            'walkToChurch': {
+                id: 'walkToChurch',
+                waypoints: [
+                    { position: Vector3.create(9,12.6,6), rotation: Quaternion.fromEulerDegrees(0, 0, 0), waitTime: 0 },
+                    { position: Vector3.create(12.8,12.6,12.3), rotation: Quaternion.fromEulerDegrees(0, 80, 0), waitTime: 0 },
+                    { position: Vector3.create(18.75,12.6,12.5), rotation: Quaternion.fromEulerDegrees(0, 80, 0), waitTime: 0 },
+                    { position: Vector3.create(24.5,15.55,11.9), rotation: Quaternion.fromEulerDegrees(0, 285, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                   //now start the searching the church waypoints
+                   gameMgr.girl.startWaypointSet('searchInsideChurch')
+                }
+            },
+            'searchInsideChurch': {
+                id: 'searchInsideChurch',
+                waypoints: [                    
+                    { position: Vector3.create(29.75,15.65,12.1), rotation: Quaternion.fromEulerDegrees(0, 165, 0), waitTime: 0 },
+                    { position: Vector3.create(33,15.55,14.25), rotation: Quaternion.fromEulerDegrees(0, 45, 0), waitTime: 0 },
+                    { position: Vector3.create(38.25,15.75,13.65), rotation: Quaternion.fromEulerDegrees(0, 115, 0), waitTime: 0 },
+                    { position: Vector3.create(37.6,15.75,18.1), rotation: Quaternion.fromEulerDegrees(0, 15, 0), waitTime: 0 },
+                    { position: Vector3.create(32.3,15.55,16), rotation: Quaternion.fromEulerDegrees(0, 245, 0), waitTime: 0 },
+                    { position: Vector3.create(26.45,15.65,16.45), rotation: Quaternion.fromEulerDegrees(0, 275, 0), waitTime: 0 },
+                ],
+                loopWaypoints: true,
+                moveSpeed: 1.5,
+            },
+            'endTheSearch': {
+                id: 'endTheSearch',
+                waypoints: [
+                    { position: Vector3.create(32.5,15.55,15), rotation: Quaternion.fromEulerDegrees(0, 265, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 4,
+                onComplete: () => {
+                    gameMgr.girl.prepareConversation('afterCandlesCollected')
+                }
+            },
+            'walkToShop': {
+                id: 'walkToShop',
+                waypoints: [
+                    { position: Vector3.create(24,15.6,13.45), rotation: Quaternion.fromEulerDegrees(0, 254, 0), waitTime: 0 },
+                    { position: Vector3.create(18.6,12.58,12.65), rotation: Quaternion.fromEulerDegrees(0, 266, 0), waitTime: 0 },
+                    { position: Vector3.create(12,12.58,13.4), rotation: Quaternion.fromEulerDegrees(0, 318, 0), waitTime: 0 },
+                    { position: Vector3.create(5.25,12.55,16.4), rotation: Quaternion.fromEulerDegrees(0, 330, 0), waitTime: 0 },
+                    { position: Vector3.create(2.85,12.1,19.4), rotation: Quaternion.fromEulerDegrees(0, 288, 0), waitTime: 0 },
+                    { position: Vector3.create(-5.1,11.9,14.65), rotation: Quaternion.fromEulerDegrees(0, 238, 0), waitTime: 0 },
+                    { position: Vector3.create(-14.4,10.85,7.45), rotation: Quaternion.fromEulerDegrees(0, 292, 0), waitTime: 0 },
+                    { position: Vector3.create(-18.75,11.1,11.1), rotation: Quaternion.fromEulerDegrees(0, 65, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    gameMgr.girl.prepareConversation('gotToShop')
+                }
+            },
+            'walkToGraveyard': {
+                id: 'walkToGraveyard',
+                waypoints: [
+                    { position: Vector3.create(-14.23,10.86,7.5), rotation: Quaternion.fromEulerDegrees(0, 48, 0), waitTime: 0 },
+                    { position: Vector3.create(-9.1,11.45,11.45), rotation: Quaternion.fromEulerDegrees(0, 48.5, 0), waitTime: 0 },
+                    { position: Vector3.create(-3.75,12.1,15.1), rotation: Quaternion.fromEulerDegrees(0, 55, 0), waitTime: 0 },
+                    { position: Vector3.create(4.4,12.1,20), rotation: Quaternion.fromEulerDegrees(0, 318, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    gameMgr.arrivedAtGraveyard()
+                    gameMgr.girl.prepareConversation('optionalGraveyardAssist')
+                }
+            },
+            'walkIntoGraveyard': {
+                id: 'walkIntoGraveyard',
+                waypoints: [
+                    { position: Vector3.create(1.7,11.75,23.55), rotation: Quaternion.fromEulerDegrees(0, 333, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    gameMgr.girl.startWaypointSet('distractShadows')
+                    //TODO: also animate the shadows to follow the girl
+                }
+            },
+            'distractShadows': {
+                id: 'distractShadows',
+                waypoints: [
+                    { position: Vector3.create(6.55,11.9,26), rotation: Quaternion.fromEulerDegrees(0, 77, 0), waitTime: 0 },
+                    { position: Vector3.create(10.7,12.1,27.75), rotation: Quaternion.fromEulerDegrees(0, 352, 0), waitTime: 0 },
+                    { position: Vector3.create(8.15,12,32), rotation: Quaternion.fromEulerDegrees(0, 288, 0), waitTime: 0 },
+                    { position: Vector3.create(2.8,11.5,35.7), rotation: Quaternion.fromEulerDegrees(0, 297, 0), waitTime: 0 },
+                    { position: Vector3.create(-7.4,10.4,33.15), rotation: Quaternion.fromEulerDegrees(0, 235, 0), waitTime: 0 },
+                    { position: Vector3.create(-10.45,11.3,23.15), rotation: Quaternion.fromEulerDegrees(0, 216, 0), waitTime: 0 },
+                    { position: Vector3.create(-7.2,11.7,20), rotation: Quaternion.fromEulerDegrees(0, 76, 0), waitTime: 0 },
+                    { position: Vector3.create(2,11.7,24), rotation: Quaternion.fromEulerDegrees(0, 62, 0), waitTime: 0 },
+                ],
+                loopWaypoints: true,
+                moveSpeed: 6
             }
         },
         
@@ -73,7 +182,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 dialogs: {
                     'girl1': {
                         speaker: 'npc',
-                        text: 'Help! I need your help!',
+                        text: 'Hello! I’m sorry to bother you, but I need help!',
                         nextDialogId: 'player1'
                     },
                     'player1': {
@@ -83,21 +192,26 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     },
                     'girl2': {
                         speaker: 'npc',
-                        text: 'This town... it\'s so spooky. Will you help me look around?',
+                        text: 'This isn’t my city — I don’t know what’s happening or how I got here. Please, help me find a way out.',
                         nextDialogId: 'player2'
                     },
                     'player2': {
                         speaker: 'player',
-                        text: 'Of course! Let\'s explore together.',
-                        action: () => {
+                        text: 'I ended up here by accident too. I’ll help you. Do you know anything about this place?',
+                        nextDialogId: 'girl3'
+                        /* action: () => {
                             //console.log('Player agreed to help')
                             //gameMgr.girlMet = true
                             console.log('Girl first meeting complete_action')
                             //gameMgr.missionState = 'followingGirl'
                             //gameMgr.missionTitle = 'FOLLOW THE GIRL'
                             //gameMgr.girl.startWaypointSet('walkToFountain')
-                        }
-                    }
+                        } */
+                    },
+                    'girl3': {
+                        speaker: 'npc',
+                        text: 'It’s strange… It looks a bit like the city I know, but this one feels empty. Dead. Let’s go check it out some more.'
+                    },
                 },
                 onComplete: () => {
                     console.log('Girl first meeting complete_onComplete')
@@ -117,22 +231,124 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     },
                     'player_answer': {
                         speaker: 'player',
-                        text: 'It\'s October 31st... Halloween.',
+                        text: 'It\'s October 27th',
                         nextDialogId: 'fountain2'
                     },
                     'fountain2': {
                         speaker: 'npc',
-                        text: 'Oh no! The ritual is tonight!',
+                        text: 'October 27… the night when the veil grows thin  when the gate to the Spirit Realm opens, and the souls of animals return to those who remember them.',
                         nextDialogId: 'fountain3'
                     },
                     'fountain3': {
                         speaker: 'npc',
-                        text: 'We need to find the items quickly!'
-                    }
+                        text: 'My cat… she always found me, no matter where I was. If we perform the ritual, she’ll come - and she’ll help us find the way out.',
+                        nextDialogId: 'player_question'
+                    },
+                    'player_question': {
+                        speaker: 'player',
+                        text: 'A ritual?',
+                        nextDialogId: 'fountain4'
+                    },
+                    'fountain4': {
+                        speaker: 'npc',
+                        text: 'Yes. But we’ll need to prepare everything first…',
+                        nextDialogId: 'fountain5'
+                    },
+                    'fountain5': {
+                        speaker: 'npc',
+                        text: 'I know... CANDLES! There should be some in the church.'
+                    },
                 },
                 onComplete: () => {
-                    gameMgr.missionState = 'collectingItems'
-                    gameMgr.missionTitle = 'COLLECT RITUAL ITEMS'
+                    gameMgr.missionState = 'collectingCandles'
+                    gameMgr.missionTitle = 'COLLECT 7 CANDLES FROM THE CHURCH'
+                    gameMgr.candleMissionInit()
+                    
+                }
+            },
+            'afterCandlesCollected': {
+                id: 'afterCandlesCollected',
+                startDialogId: 'postCandles1',
+                dialogs: {
+                    'postCandles1': {
+                        speaker: 'npc',
+                        text: 'Great job! Hang onto those candles. We need them for the ritual.',
+                        nextDialogId: 'postCandles2'
+                    },
+                    'postCandles2': {
+                        speaker: 'npc',
+                        text: 'The next thing we for the ritual is my cat\'s favorite food.',
+                        nextDialogId: 'postCandles3'
+                    },
+                    'postCandles3': {
+                        speaker: 'npc',
+                        text: 'That was Happy Murmur. Do you think they would have that at the shop?',
+                        nextDialogId: 'player_response'
+                    },
+                    'player_response': {
+                        speaker: 'player',
+                        text: 'Let\'s go check it out.'
+                    },
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'headingToShop'
+                    gameMgr.missionTitle = 'HEAD TO THE SHOP'
+                    gameMgr.girl.startWaypointSet('walkToShop')
+                }
+            },
+            'gotToShop': {
+                id: 'gotToShop',
+                startDialogId: 'postCandles1',
+                dialogs: {
+                    'postCandles1': {
+                        speaker: 'npc',
+                        text: 'I don\'t like the look of this shop... it\'s creepy. I\'ll wait here while you go in and get the food.'
+                    },
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'checkForFood'
+                    gameMgr.missionTitle = 'TALK TO THE SHOPKEEPER'
+                    gameMgr.shopKeeper.prepareConversation('initialShopTalk')
+                }
+            },
+            'tellAboutJar': {
+                id: 'tellAboutJar',
+                startDialogId: 'haveJar1',
+                dialogs: {
+                    'haveJar1': {
+                        speaker: 'player',
+                        text: 'That was weird. He won\'t take my money. He says we need a whisper from the graveyard.'
+                    },
+                    'girlJar1': {
+                        speaker: 'npc',
+                        text: 'Well, we don\'t have much time. We need to get the food and perform the ritual.'
+                    },
+                    'haveJar2': {
+                        speaker: 'player',
+                        text: 'He gave me this jar to collect the whisper. Let\'s get this over with...',
+                    },
+                },
+                onComplete: () => {
+                    
+                    gameMgr.prepareTheGraveyard()
+                }
+            },
+            'optionalGraveyardAssist': {
+                id: 'optionalGraveyardAssist',
+                startDialogId: 'assist1',
+                dialogs: {
+                    'assist1': {
+                        speaker: 'npc',
+                        text: 'I don\'t like the look of those shadows swirling around in there. Stay away from them.',
+                        nextDialogId: 'assist2'
+                    },
+                    'assist2': {
+                        speaker: 'npc',
+                        text: 'I know... I will distract them while you collect the whisper.',
+                    },
+                },
+                onComplete: () => {
+                    gameMgr.girl.startWaypointSet('walkIntoGraveyard')
                 }
             }
         },
@@ -144,20 +360,21 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
 
 export function createShopOwnerNPC(gameMgr: GameManager): NPC {
     //SHOP OWNER
-    //-23,6,16 (BEHIND COUNTER)
+    //-25,11.25,17.5 (BEHIND COUNTER)
 
     return new NPC(gameMgr, {
         id: 'shopKeeper',
         name: 'Shop Keeper',
-        startPosition: Vector3.create(-23,6,16),
+        startPosition: Vector3.create(-25,11.25,17.5),
         startRotation: Quaternion.fromEulerDegrees(0,180,0),
 
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
-            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
+            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
             wearables: [
-                'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
-                'urn:decentraland:off-chain:base-avatars:brown_pants'
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
             ]
         },
         clickable: true,
@@ -199,8 +416,8 @@ export function createShopOwnerNPC(gameMgr: GameManager): NPC {
         ],
         
         conversationSets: {
-            'shopTalk': {
-                id: 'shopTalk',
+            'initialShopTalk': {
+                id: 'initialShopTalk',
                 startDialogId: 'shop1',
                 dialogs: {
                     'shop1': {
@@ -210,16 +427,36 @@ export function createShopOwnerNPC(gameMgr: GameManager): NPC {
                     },
                     'player1': {
                         speaker: 'player',
-                        text: 'Yes, what do you have available?',
+                        text: 'Yes, we need a can of Happy Murmur cat food. Do you have that?',
                         nextDialogId: 'shop2'
                     },
                     'shop2': {
                         speaker: 'npc',
-                        text: 'I have various items. Let me know what you need.',
-                        action: () => {
-                            gameMgr.missionState = 'metShopOwner'
-                        }
+                        text: 'It just so happens I have one can left.',
+                        nextDialogId: 'player2'
+                    },
+                    'player2': {
+                        speaker: 'player',
+                        text: 'How much does it cost? (pulling out some coins)',
+                        nextDialogId: 'shop3'
+                    },
+                    'shop3': {
+                        speaker: 'npc',
+                        text: 'We don\'t trade in coins here. Our currency is memory, breath, and whispers of the lost.',
+                        nextDialogId: 'shop4'
+                    },
+                    'shop4': {
+                        speaker: 'npc',
+                        text: 'Bring me a whisper from the graveyard — the voice of one who won\'t rest. Then we\'ll talk.',
+                        nextDialogId: 'shop5'
+                    },
+                    'shop5': {
+                        speaker: 'npc',
+                        text: 'Use this to catch it… but be careful — the dead don\'t like to be disturbed.'
                     }
+                },
+                onComplete: () => {
+                    gameMgr.shopKeeperGivingJar()
                 }
             }
         },
@@ -232,15 +469,16 @@ export function createTempleShamanNPC(gameMgr: GameManager): NPC {
     return new NPC(gameMgr, {
         id: 'templeShaman',
         name: 'Temple Shaman',
-        startPosition: Vector3.create(-34,39,52),
-        startRotation: Quaternion.fromEulerDegrees(0,0,0),
+        startPosition: Vector3.create(-32.25,45.35,59),
+        startRotation: Quaternion.fromEulerDegrees(0,180,0),
 
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
             wearables: [
-                'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
-                'urn:decentraland:off-chain:base-avatars:brown_pants'
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
             ]
         },
         clickable: true,
@@ -315,15 +553,16 @@ export function createOldLadyNPC(gameMgr: GameManager): NPC {
     return new NPC(gameMgr, {
         id: 'oldLady',
         name: 'Old Lady',
-        startPosition: Vector3.create(-26,6,1),
+        startPosition: Vector3.create(-27,10.55,2.5),
         startRotation: Quaternion.fromEulerDegrees(0,0,0),
 
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
-                'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
-                'urn:decentraland:off-chain:base-avatars:brown_pants'
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
             ]
         },
         clickable: true,
@@ -398,16 +637,18 @@ export function createDoormanNPC(gameMgr: GameManager): NPC {
     return new NPC(gameMgr, {
         id: 'doorman',
         name: 'Doorman',
-        startPosition: Vector3.create(-26,6,5),
+        startPosition: Vector3.create(-21.75,10.1,-1.75),
         startRotation: Quaternion.fromEulerDegrees(0,0,0),
 
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
             wearables: [
-                "urn:decentraland:matic:collections-v2:0xc714bac4b6af6c7407dd4f6587ed332aa21fad84:0", 
-                "urn:decentraland:off-chain:base-avatars:brown_pants", 
-                'urn:decentraland:matic:collections-v2:0xbcc888ae057f3490fa0b5c03977af9c80bdd9b49:0' 
+                //"urn:decentraland:matic:collections-v2:0xc714bac4b6af6c7407dd4f6587ed332aa21fad84:0", //(funky hat)
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:red_tshirt',
+                //'urn:decentraland:matic:collections-v2:0xbcc888ae057f3490fa0b5c03977af9c80bdd9b49:0' //(suit)
             ]
         },
         clickable: true,
@@ -475,15 +716,16 @@ export function createLibrarianNPC(gameMgr: GameManager): NPC {
     return new NPC(gameMgr, {
         id: 'librarian',
         name: 'Librarian',
-        startPosition: Vector3.create(-48,21,19),
-        startRotation: Quaternion.fromEulerDegrees(0,0,0),
+        startPosition: Vector3.create(-53,27.25,21.5),
+        startRotation: Quaternion.fromEulerDegrees(0,110,0),
 
         useAvatar: true,
+        useDefaultAvatar: false,
         avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
-                'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',
-                'urn:decentraland:off-chain:base-avatars:brown_pants'
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
             ]
         },
         clickable: true,
