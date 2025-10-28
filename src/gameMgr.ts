@@ -4,7 +4,7 @@ import { PlayerManager } from './playerMgr'
 import {ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
 import {setUiForMissionState } from './uiMgr'
-import { CandleCollectable, JarCollectable } from './components/collectables'
+import { CandleCollectable, JarCollectable, WhisperCollectable} from './components/collectables'
 
 import { HouseTriggerZone, CheckpointTriggerZone, FallTriggerZone, DisableCheckpointsTriggerZone, ReverseCheckpointsTriggerZone, ToggleUpperFallZoneTriggerZone} from './components/triggerZones'
 //import { TempZoneClicker } from './components/tempZoneClickers'
@@ -12,6 +12,9 @@ import { TpVideoRoom } from './components/tpVideoRoom'
 //import { GameTimer } from './gameTimer'
 import { movePlayerTo, triggerEmote  } from '~system/RestrictedActions'
 import { NPC } from './components/npc'
+
+import { Elevator, FloorData, ElevatorConfig } from './components/elevator'
+
 
 import { 
     createGirlNPC, 
@@ -62,7 +65,7 @@ export class GameManager{
 
     candles: Array<Entity>
     candleIndexCollected: Array<number>
-
+    whisper: any
     jar: any
 
     checkpointTriggerZones: Array<Entity>
@@ -70,6 +73,8 @@ export class GameManager{
     disableCheckpointsTriggerZone: any
     reverseCheckpointsTriggerZone: Entity
     upperFallZoneToggleTriggerZone: Entity
+    
+    elevator: Elevator
 
 	constructor(){
 		//console.log("GameManager: constructor running")
@@ -125,7 +130,16 @@ export class GameManager{
         this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
 
         this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), true)
-	}
+	
+        // Create the elevator
+        this.elevator = new Elevator(elevatorConfig)
+    }
+
+    whisperCollected(){
+        this.missionState = 'haveTheWhisper'
+        this.missionTitle = 'GTFO THIS GRAVEYARD!'
+        this.girl.startWaypointSet('runOutOfGraveyard')
+    }
 
     adjustUpperFallZone(){
         if(this.playerMgr.upperZoneActive == false){
@@ -321,6 +335,9 @@ export class GameManager{
         this.missionState = 'arrivedAtGraveyard'
         //TODO: animate the gate opening
         //TODO: remove the collider keeping player out of the graveyard?
+
+        //temp: spawn the whisper collectable
+        this.whisper = WhisperCollectable(this, "models/final/whisperB.gltf", Vector3.create(1.85,12.3,34), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
     }
 
     itemCheck(){
@@ -399,6 +416,53 @@ export class GameManager{
     }  
 }
 
+// Define your floors
+const floors: FloorData[] = [
+    { id: 'G', yPosition: 10.66, label: 'Ground Floor' },
+    { id: '1', yPosition: 14.5, label: '1st Floor' },
+    { id: '2', yPosition: 19, label: '2nd Floor' },
+    { id: '3', yPosition: 23.5, label: '3rd Floor' },
+    { id: '4', yPosition: 28, label: '4th Floor' },
+    { id: '5', yPosition: 32.5, label: '5th Floor' },
+    { id: 'PH', yPosition: 37, label: 'Penthouse' }
+]
+
+// Define button positions inside the elevator (relative to car)
+const buttonPositions = {
+    'G': Vector3.create(1.8, 1, 0.6),
+    '1': Vector3.create(1.8, 1.3, 0.6),
+    '2': Vector3.create(1.8, 1.6, 0.6),
+    '3': Vector3.create(1.8, 1.9, 0.6),
+    '4': Vector3.create(1.8, 2.2, 0.6),
+    '5': Vector3.create(1.8, 2.5, 0.6),
+    'PH': Vector3.create(1.8, 2.8, 0.6)
+
+
+    /* 'G': Vector3.create(0, 1, 0.5),
+    '1': Vector3.create(1, 1.3, 0.5),
+    '2': Vector3.create(1, 1.6, 0.5),
+    '3': Vector3.create(1, 1.9, 0.5),
+    '4': Vector3.create(1.3, 1, 0.5),
+    '5': Vector3.create(1.3, 1.3, 0.5),
+    'PH': Vector3.create(1.3, 1.6, 0.5) */
+}
+
+// Create elevator configuration
+const elevatorConfig: ElevatorConfig = {
+    carPosition: Vector3.create(-26.6,10.66,-13.05),//-26.6,10.66,-13.05
+    carRotation: Quaternion.fromEulerDegrees(0,25,0),
+    carModelPath: 'models/final/ele_carB.gltf',
+    doorModelPath: 'models/final/ele_doorB.gltf',
+    doorOffset: Vector3.create(0, 0, 0),  // Position relative to car
+    doorOpenRotation: Vector3.create(0, 0, 0),      // Euler degrees
+    doorClosedRotation: Vector3.create(0, -53, 0),  // Rotates -90 degrees on Y
+    floors: floors,
+    moveSpeed: 3.0,      // 3 units per second
+    doorSpeed: 1.5,      // 1.5 seconds to open/close
+    buttonPositions: buttonPositions,
+    callButtonOffset: Vector3.create(-.25, 1.6, 2.4)  // NEW: 2m to the side, 1.5m up from floor
+}
+
 const data = {
         staticParts: [
 
@@ -414,10 +478,12 @@ const data = {
             {name: "boneBridgeLanding", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeLandingB.gltf", scale: Vector3.create(1,1,1)},
             {name: "boneBridge", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeB.gltf", scale: Vector3.create(1,1,1)},
             {name: "tempBridges", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempBridgesB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "cemetaryGate", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryGateB.gltf", scale: Vector3.create(1,1,1)},
+            //{name: "cemetaryGate", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryGateB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "cemetaryWallOverall", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryWall_overallB.gltf", scale: Vector3.create(1,1,1)},
 
             {name: "fountain", pos: Vector3.create(7.5,12.5,11.125), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/fountain.glb", scale: Vector3.create(1,1,1)},
-            {name: "apartment", pos: Vector3.create(-25.5,10,-11), rot: Quaternion.fromEulerDegrees(0,30,0), src: "models/final/origBuildings/apartments.glb", scale: Vector3.create(1,1,1)},
+            //{name: "apartment", pos: Vector3.create(-25.5,10,-11), rot: Quaternion.fromEulerDegrees(0,30,0), src: "models/final/origBuildings/apartments.glb", scale: Vector3.create(1,1,1)},
+            {name: "apartment_rework", pos: Vector3.create(-25.5,10,-11), rot: Quaternion.fromEulerDegrees(0,30,0), src: "models/final/buildingReworks/apartment_reworkB.glb", scale: Vector3.create(1,1,1)},
             {name: "playerHouse", pos: Vector3.create(42,18.5,-26), rot: Quaternion.fromEulerDegrees(0,330,0), src: "models/final/origBuildings/playerHouse.glb", scale: Vector3.create(1,1,1)},
             {name: "girlHouse", pos: Vector3.create(34,12.25,57), rot: Quaternion.fromEulerDegrees(0,190,0), src: "models/final/origBuildings/girlHouse.glb", scale: Vector3.create(1,1,1)},
             {name: "library", pos: Vector3.create(-63,24.25,27), rot: Quaternion.fromEulerDegrees(0,125,0), src: "models/final/origBuildings/library.glb", scale: Vector3.create(1,1,1)},

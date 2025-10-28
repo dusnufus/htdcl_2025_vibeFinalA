@@ -59,3 +59,31 @@ export function JarCollectable(_gameMgr: GameManager,_srcPath:string, _pos: Vect
     return e
 
 }
+
+export function WhisperCollectable(_gameMgr: GameManager,_srcPath:string, _pos: Vector3, _scale: Vector3, _rot: Quaternion): Entity{
+
+    var e = engine.addEntity()
+    GltfContainer.create(e, {
+        src: _srcPath
+    })
+
+    Transform.create(e, {
+        position: _pos,
+        scale: _scale,
+        rotation: _rot
+    })
+
+    pointerEventsSystem.onPointerDown(
+        e,
+        () => {
+            _gameMgr.whisperCollected()
+        },
+        {
+            button: InputAction.IA_POINTER,
+            hoverText: "TAKE THE WHISPER"
+        }
+    )
+
+    return e
+
+}

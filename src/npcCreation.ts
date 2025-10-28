@@ -163,6 +163,58 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 ],
                 loopWaypoints: true,
                 moveSpeed: 6
+            },
+            'runOutOfGraveyard': {
+                id: 'runOutOfGraveyard',
+                waypoints: [
+                    { position: Vector3.create(1.7,11.75,23.55), rotation: Quaternion.fromEulerDegrees(0, 333, 0), waitTime: 0 },
+                    { position: Vector3.create(2.7,12.1,20.3), rotation: Quaternion.fromEulerDegrees(0, 115, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 6,
+                onComplete: () => {
+                    gameMgr.girl.prepareConversation('thatWasClose')
+                }
+            },
+            'backToTheShop': {
+                id: 'backToTheShop',
+                waypoints: [
+                    { position: Vector3.create(-5.1,11.9,14.65), rotation: Quaternion.fromEulerDegrees(0, 238, 0), waitTime: 0 },
+                    { position: Vector3.create(-14.4,10.85,7.45), rotation: Quaternion.fromEulerDegrees(0, 292, 0), waitTime: 0 },
+                    { position: Vector3.create(-17.6,11.1,12.4), rotation: Quaternion.fromEulerDegrees(0, 321, 0), waitTime: 0 },
+                    { position: Vector3.create(-20.65,11.25,16), rotation: Quaternion.fromEulerDegrees(0, 308, 0), waitTime: 0 },
+                    { position: Vector3.create(-22.3,11.25,17.7), rotation: Quaternion.fromEulerDegrees(0, 262, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 6,
+                onComplete: () => {
+                    gameMgr.shopKeeper.prepareConversation('returnTheWhisper')
+                }
+            },
+            'outsideTheShop': {
+                id: 'outsideTheShop',
+                waypoints: [
+                    { position: Vector3.create(-20.65,11.25,16), rotation: Quaternion.fromEulerDegrees(0, 137, 0), waitTime: 0 },
+                    { position: Vector3.create(-17.6,11.1,12.4), rotation: Quaternion.fromEulerDegrees(0, 137, 0), waitTime: 0 },
+                    { position: Vector3.create(-14.7,10.85,7.65), rotation: Quaternion.fromEulerDegrees(0, 204, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    gameMgr.girl.prepareConversation('lookAtApartments')
+                }
+            },
+            'toTheApartmentBuilding': {
+                id: 'toTheApartmentBuilding',
+                waypoints: [
+                    { position: Vector3.create(-16.85,10.2,3.8), rotation: Quaternion.fromEulerDegrees(0, 207, 0), waitTime: 0 },
+                    { position: Vector3.create(-20,10.15,-3.85), rotation: Quaternion.fromEulerDegrees(0, 202, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    //gameMgr.girl.prepareConversation('lookAtApartments')
+                }
             }
         },
         
@@ -317,11 +369,13 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 dialogs: {
                     'haveJar1': {
                         speaker: 'player',
-                        text: 'That was weird. He won\'t take my money. He says we need a whisper from the graveyard.'
+                        text: 'That was weird. He won\'t take my money. He says we need a whisper from the graveyard.',
+                        nextDialogId: 'girlJar1'
                     },
                     'girlJar1': {
                         speaker: 'npc',
-                        text: 'Well, we don\'t have much time. We need to get the food and perform the ritual.'
+                        text: 'Well, we don\'t have much time. We need to get the food and perform the ritual.',
+                        nextDialogId: 'haveJar2'
                     },
                     'haveJar2': {
                         speaker: 'player',
@@ -329,7 +383,6 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     },
                 },
                 onComplete: () => {
-                    
                     gameMgr.prepareTheGraveyard()
                 }
             },
@@ -349,6 +402,51 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 },
                 onComplete: () => {
                     gameMgr.girl.startWaypointSet('walkIntoGraveyard')
+                }
+            },
+            'thatWasClose': {
+                id: 'thatWasClose',
+                startDialogId: 'close1',
+                dialogs: {
+                    'close1': {
+                        speaker: 'npc',
+                        text: 'That was close! We need to get back to the shop.',
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'backToTheShop'
+                    gameMgr.missionTitle = 'RETURN TO THE SHOP'
+                    gameMgr.girl.startWaypointSet('backToTheShop')
+                }
+            },
+            'lookAtApartments': {
+                id: 'lookAtApartments',
+                startDialogId: 'lookAt1',
+                dialogs: {
+                    'lookAt1': {
+                        speaker: 'npc',
+                        text: 'I need to write a letter for the ritual. We will need a paper and a pen.',
+                        nextDialogId: 'lookAt2'
+                    },
+                    'lookAt2': {
+                        speaker: 'npc',
+                        text: 'If this is anything like the city I know, there should be a writer that lives in that building right there.',
+                        nextDialogId: 'playerLook1'
+                    },
+                    'playerLook1': {
+                        speaker: 'player',
+                        text: 'The tall one?',
+                        nextDialogId: 'lookAt3'
+                    },
+                    'lookAt3': {
+                        speaker: 'npc',
+                        text: 'Yep. I just need to remember which apartment she lives in. I know it was on the top floor.',
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'headedToApartments'
+                    gameMgr.missionTitle = 'FIND THE WRITER'
+                    gameMgr.girl.startWaypointSet('toTheApartmentBuilding')
                 }
             }
         },
@@ -458,7 +556,37 @@ export function createShopOwnerNPC(gameMgr: GameManager): NPC {
                 onComplete: () => {
                     gameMgr.shopKeeperGivingJar()
                 }
-            }
+            },
+            'returnTheWhisper': {
+                id: 'returnTheWhisper',
+                startDialogId: 'whisper1',
+                dialogs: {
+                    'whisper1': {
+                        speaker: 'npc',
+                        text: 'Well, I didn\'t expect to see you again. Did you bring the whisper?',
+                        nextDialogId: 'playerWhisper1'
+                    },
+                    'playerWhisper1': {
+                        speaker: 'player',
+                        text: 'Guess you underestimated us. We got the whisper.',
+                        nextDialogId: 'whisper2'
+                    },
+                    'whisper2': {
+                        speaker: 'npc',
+                        text: 'Fair enough. Here\'s your can of Happy Murmur.',
+                        nextDialogId: 'whisper3'
+                    },
+                    'whisper3': {
+                        speaker: 'npc',
+                        text: 'Best of luck on your journey. May the spirits guide you.',
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'haveTheCatFood'
+                    gameMgr.missionTitle = 'FOLLOW THE GIRL'
+                    gameMgr.girl.startWaypointSet('outsideTheShop')
+                }
+            },
         },
         
         canGiveItems: false
