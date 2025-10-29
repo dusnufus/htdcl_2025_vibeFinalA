@@ -53,7 +53,8 @@ export class GameManager{
     girlHouseTrigger: any
 
     tpVideoRoom: TpVideoRoom
-
+    //tpVideoRoom2!: TpVideoRoom
+    
     // Dialog system
     dialogActive: boolean = false
     dialogNPCName: string = ""
@@ -156,11 +157,22 @@ export class GameManager{
 
     }
 
+    foundTree(){
+        this.missionState = 'ritualCutscenePlaying'
+        //movePlayerTo({newRelativePosition: Vector3.create(10,2,10), cameraTarget: Vector3.create(10,2,10)})
+        this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
+
+        //create the video room and set the intro video
+		/* this.tpVideoRoom2 = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
+        this.tpVideoRoom2.setVideo("videos/ritual.mp4", 3, 3) */
+    }
+
     whisperCollected(){
         engine.removeEntity(this.whisper)
         this.missionState = 'haveTheWhisper'
         this.missionTitle = 'GTFO THIS GRAVEYARD!'
         this.girl.startWaypointSet('runOutOfGraveyard')
+
     }
 
     adjustUpperFallZone(){
@@ -261,7 +273,14 @@ export class GameManager{
             setUiForMissionState(this, this.missionState)
         }
         else if(this.missionState == "ritualCutscenePlaying"){
+            console.log('GameManager: ritual cutscene complete')
             //handle end of the ritual cutscene
+            //move the player to the player's house starting point
+            movePlayerTo({
+                //-34,50,52 (temple landing)
+                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,21,-19 (player's house position)
+                cameraTarget: Vector3.create(10,27,9)
+            })
         }
         else if(this.missionState == "endCutscenePlaying"){
             //handle the end of the game
@@ -269,6 +288,8 @@ export class GameManager{
     }
 
     foundGirl(){
+
+        //this.foundTree()
 
         //this is run when the player triggers the girl's house trigger
 

@@ -20,8 +20,11 @@ export class TpVideoRoom{
     videoPlayingTime: number = 0
     expectedVideoDuration: number = 0  // videoLength + 5 second buffer
     videoViewingBoxRadius: number = 5  // Maximum distance from center before teleporting
+    
+    // Track if video player/modifiers are set up
+    videoPlayerSetup: boolean = false
 
-	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number){
+	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number, second:boolean = false){
 
         console.log("TpVideoRoom: constructor running")
 
@@ -34,11 +37,20 @@ export class TpVideoRoom{
             src: _roomSrc
         })
 
-        Transform.create(this.roomEntity, {
-            position: Vector3.create(0,0,0),
-            scale: Vector3.create(1,1,1),
-            rotation: Quaternion.fromEulerDegrees(0,0,0)
-        })
+        if(second == true){
+            Transform.create(this.roomEntity, {
+                position: Vector3.create(10,0,10),
+                scale: Vector3.create(1,1,1),
+                rotation: Quaternion.fromEulerDegrees(0,0,0)
+            })
+        }
+        else{
+            Transform.create(this.roomEntity, {
+                position: Vector3.create(0,0,0),
+                scale: Vector3.create(1,1,1),
+                rotation: Quaternion.fromEulerDegrees(0,0,0)
+            })
+        }
 
         //adding screen entities
         let screenRotation = 360 / _screenCount
@@ -95,6 +107,23 @@ export class TpVideoRoom{
     }
 
     setVideo(_videoSrc: string, _waitBeforeStart: number, _waitAfterEnd: number){
+        console.log(`setVideo: Setting new video ${_videoSrc}`)
+        
+        // Stop and completely remove old video to prevent stale frames
+        if (VideoPlayer.has(this.screenEntities[0])) {
+            const existingPlayer = VideoPlayer.getMutable(this.screenEntities[0])
+            existingPlayer.playing = false
+            VideoPlayer.deleteFrom(this.screenEntities[0])
+            console.log('setVideo: Cleaned up old VideoPlayer')
+        }
+        
+        // Remove old modifiers too
+        for(let i = 0; i < this.screenEntities.length; i++){
+            if (GltfNodeModifiers.has(this.screenEntities[i])) {
+                GltfNodeModifiers.deleteFrom(this.screenEntities[i])
+            }
+        }
+        
         this.currentVideoSrc = _videoSrc
         this.waitBeforeStart = _waitBeforeStart
         this.waitAfterEnd = _waitAfterEnd
@@ -107,22 +136,39 @@ export class TpVideoRoom{
     }
 
     playVideoNow(){
-        console.log('playVideoNow: starting video')
+        console.log('playVideoNow: starting video', this.currentVideoSrc)
         
+        // COMPLETE cleanup - delete everything first
+        // Delete VideoPlayer completely
+        if (VideoPlayer.has(this.screenEntities[0])) {
+            const existingPlayer = VideoPlayer.getMutable(this.screenEntities[0])
+            existingPlayer.playing = false
+            VideoPlayer.deleteFrom(this.screenEntities[0])
+            console.log('Deleted existing VideoPlayer')
+        }
+        
+        // Delete ALL GltfNodeModifiers from all screens
+        for(let i = 0; i < this.screenEntities.length; i++){
+            if (GltfNodeModifiers.has(this.screenEntities[i])) {
+                GltfNodeModifiers.deleteFrom(this.screenEntities[i])
+            }
+        }
+        console.log('Deleted all existing GltfNodeModifiers')
+        
+        // Now create everything fresh
         VideoPlayer.create(this.screenEntities[0], {
             src: this.currentVideoSrc,
             playing: true,
-            //loop: true,
         })
+        console.log('Created NEW VideoPlayer with src:', this.currentVideoSrc)
 
-        //set the same video texture for all the screens
+        // Create fresh GltfNodeModifiers with new video texture reference
         for(let i = 0; i < this.screenEntities.length; i++){
-
             GltfNodeModifiers.create(
                 this.screenEntities[i],
                 {
                     modifiers: [{
-                        path: '',
+                        path: '',  // Empty path applies to root/material
                         material: {
                             material: {
                                 $case: 'pbr', pbr: {
@@ -135,6 +181,9 @@ export class TpVideoRoom{
                     }],
                 })
         }
+        console.log('Created NEW GltfNodeModifiers with video texture for all screens')
+        
+        this.videoPlayerSetup = true
 
         videoEventsSystem.registerVideoEventsEntity(
             this.screenEntities[0],

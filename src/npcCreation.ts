@@ -232,15 +232,60 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 }
             },
             'toTheApartmentBuilding': {
-                id: 'toTheApartmentBuilding',
+                id: 'toTheDoorman',
                 waypoints: [
                     { position: Vector3.create(-16.85,10.2,3.8), rotation: Quaternion.fromEulerDegrees(0, 207, 0), waitTime: 0 },
-                    { position: Vector3.create(-20,10.15,-3.85), rotation: Quaternion.fromEulerDegrees(0, 202, 0), waitTime: 0 },
+                    { position: Vector3.create(-20,10,0), rotation: Quaternion.fromEulerDegrees(0, 229, 0), waitTime: 0 },
                 ],
                 loopWaypoints: false,
                 moveSpeed: 3.5,
                 onComplete: () => {
                     //gameMgr.girl.prepareConversation('lookAtApartments')
+                    gameMgr.doorman.prepareConversation('greetDoorman')
+                }
+            },
+            'searchLobby': {
+                id: 'toTheDoorman',
+                waypoints: [
+                    { position: Vector3.create(-22.85,10.3,-5.67), rotation: Quaternion.fromEulerDegrees(0, 218, 0), waitTime: 0 },
+                    { position: Vector3.create(-31.85,10.75,-10.15), rotation: Quaternion.fromEulerDegrees(0, 182, 0), waitTime: 0 },
+                ],
+                loopWaypoints: true,
+                moveSpeed: 3
+            },
+            'toTheAptDoor': {
+                id: 'toTheAptDoor',
+                waypoints: [
+                    { position: Vector3.create(-20,10.15,-3.5), rotation: Quaternion.fromEulerDegrees(0, 32, 0), waitTime: 0 }
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5
+            },
+            'backToTheGraveyard': {
+                id: 'backToTheGraveyard',
+                waypoints: [
+                    { position: Vector3.create(-15.6,10.7,6.34), rotation: Quaternion.fromEulerDegrees(0, 44, 0), waitTime: 0 },
+                    { position: Vector3.create(-7.35,11.67,13), rotation: Quaternion.fromEulerDegrees(0, 48.5, 0), waitTime: 0 },
+                    { position: Vector3.create(2.35,12.1,20.3), rotation: Quaternion.fromEulerDegrees(0, 358, 0), waitTime: 0 },
+                    { position: Vector3.create(2.35,11.4,29), rotation: Quaternion.fromEulerDegrees(0, 301, 0), waitTime: 0 },
+                    { position: Vector3.create(-7.58,10.38,33.85), rotation: Quaternion.fromEulerDegrees(0, 247, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 4.5,
+                onComplete: () => {
+                    gameMgr.girl.prepareConversation('thePassage')
+                }
+            },
+            'toTheTree': {
+                id: 'toTheTree',
+                waypoints: [
+                    { position: Vector3.create(-10.18,10.4,34.6), rotation: Quaternion.fromEulerDegrees(0, 332, 0), waitTime: 0 },
+                    { position: Vector3.create(-14.12,10.55,43.2), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 0 },
+                ],
+                loopWaypoints: false,
+                moveSpeed: 3.5,
+                onComplete: () => {
+                    gameMgr.foundTree()
                 }
             }
         },
@@ -457,23 +502,62 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     },
                     'lookAt2': {
                         speaker: 'npc',
-                        text: 'If this is anything like the city I know, there should be a writer that lives in that building right there.',
-                        nextDialogId: 'playerLook1'
-                    },
-                    'playerLook1': {
-                        speaker: 'player',
-                        text: 'The tall one?',
-                        nextDialogId: 'lookAt3'
-                    },
-                    'lookAt3': {
-                        speaker: 'npc',
-                        text: 'Yep. I just need to remember which apartment she lives in. I know it was on the top floor.',
+                        text: 'Someone in one of the apartments must have some paper and a pen. Lets check with doorman'
                     }
                 },
                 onComplete: () => {
-                    gameMgr.missionState = 'headedToApartments'
-                    gameMgr.missionTitle = 'FIND THE WRITER'
-                    gameMgr.girl.startWaypointSet('toTheApartmentBuilding')
+                    gameMgr.missionState = 'gotToDoorman'
+                    gameMgr.missionTitle = 'TALK TO THE DOORMAN'
+                    gameMgr.girl.startWaypointSet('toTheDoorman')
+                }
+            },
+            'apartmentPlan': {
+                id: 'apartmentPlan',
+                startDialogId: 'apartment1',
+                dialogs: {
+                    'apartment1': {
+                        speaker: 'npc',
+                        text: ' I don\'t trust him, I will search around the lobby while you go upstairs and try to find this old woman',
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'searchApartments'
+                    gameMgr.missionTitle = 'SEARCH THE FOR THE OLD LADY'
+                    gameMgr.girl.startWaypointSet('searchLobby')
+                }
+            },
+            'everythingsReady': {
+                id: 'everythingsReady',
+                startDialogId: 'ready1',
+                dialogs: {
+                    'ready1': {
+                        speaker: 'npc',
+                        text: 'Great job! We have everything we need. Let\'s find someplace quiet to perform the ritual.',
+                        nextDialogId: 'player1'
+                    },
+                    'player1': {
+                        speaker: 'player',
+                        text: 'The old lady told me about a hidden passage behind the graveyard. There should be a place there to perform the ritual.',
+                        nextDialogId: 'ready2'
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'searchingForRitualLocation'
+                    gameMgr.missionTitle = 'FIND THE RITUAL LOCATION'
+                    gameMgr.girl.startWaypointSet('backToTheGraveyard')
+                }
+            },
+            'thePassage': {
+                id: 'thePassage',
+                startDialogId: 'passage1',
+                dialogs: {
+                    'passage1': {
+                        speaker: 'npc',
+                        text: 'There\'s the secret passage! Let\'s perform the ritual.',
+                    }
+                },
+                onComplete: () => {
+                    gameMgr.girl.startWaypointSet('toTheTree')
                 }
             }
         },
@@ -812,27 +896,50 @@ export function createOldLadyNPC(gameMgr: GameManager, pos: Vector3, rot: Quater
         ],
         
         conversationSets: {
-            'wisdom': {
-                id: 'wisdom',
-                startDialogId: 'lady1',
+            'foundHer': {
+                id: 'foundHer',
+                startDialogId: 'player1',
                 dialogs: {
-                    'lady1': {
-                        speaker: 'npc',
-                        text: 'I remember when this town was different...',
-                        nextDialogId: 'player1'
-                    },
                     'player1': {
                         speaker: 'player',
-                        text: 'What was it like?',
+                        text: 'Can you help us? We need a special paper… and a pen.',
+                        nextDialogId: 'lady1'
+                    },
+                    'lady1': {
+                        speaker: 'npc',
+                        text: 'I knew you\'d come. I\'ve been watching from afar.',
                         nextDialogId: 'lady2'
                     },
                     'lady2': {
                         speaker: 'npc',
-                        text: 'Full of life and laughter. Now... it\'s changed.',
-                        action: () => {
-                            gameMgr.missionState = 'metOldLady'
-                        }
+                        text: 'Be careful — the woods can trick you. Every tree looks the same.',
+                        nextDialogId: 'lady3'
+                    },
+                    'lady3': {
+                        speaker: 'npc',
+                        text: 'Say hello to the cat — she\'s the sweetest.',
+                        nextDialogId: 'player2'
+                    },
+                    'player2': {
+                        speaker: 'player',
+                        text: 'Thank you! But… what woods do you mean?',
+                        nextDialogId: 'lady4'
+                    },
+                    'lady4': {
+                        speaker: 'npc',
+                        text: 'Behind the graveyard. There\'s a hidden passage. Stay quiet — don\'t wake the ghosts.',
+                        nextDialogId: 'player3'
+                    },
+                    'player3': {
+                        speaker: 'player',
+                        text: 'We will be careful. Thanks',
                     }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'haveAllItems'
+                    gameMgr.missionTitle = 'TALK TO THE GIRL'
+                    gameMgr.girl.startWaypointSet('toTheAptDoor')
+                    gameMgr.girl.prepareConversation('everythingsReady')
                 }
             }
         },
@@ -920,22 +1027,34 @@ export function createDoormanNPC(gameMgr: GameManager): NPC {
         ],
         
         conversationSets: {
-            'greeting': {
-                id: 'greeting',
-                startDialogId: 'door1',
+            'greetDoorman': {
+                id: 'greetDoorman',
+                startDialogId: 'player1',
                 dialogs: {
-                    'door1': {
-                        speaker: 'npc',
-                        text: 'Welcome. I guard this entrance.',
-                        nextDialogId: 'player1'
-                    },
                     'player1': {
                         speaker: 'player',
-                        text: 'Nice to meet you.',
-                        action: () => {
-                            gameMgr.missionState = 'metDoorman'
-                        }
+                        text: 'Hello, we aree looking for someone who might have some paper and a pen.',
+                        nextDialogId: 'door1'
+                    },
+                    'door1': {
+                        speaker: 'npc',
+                        text: 'Noone here except one old lady who wanders all the apartments and me who has nowhere better to be.',
+                        nextDialogId: 'door2'
+                    },
+                    'door2': {
+                        speaker: 'npc',
+                        text: 'If you can find her, she used to be a writer, so maybe she can give you some supplies.',
+                        nextDialogId: 'player2'
+                    },
+                    'player2': {
+                        speaker: 'player',
+                        text: 'We will try to find her. Thanks',
                     }
+                },
+                onComplete: () => {
+                    gameMgr.missionState = 'findOldLady'
+                    gameMgr.missionTitle = 'TALK TO GIRL'
+                    gameMgr.girl.prepareConversation('apartmentPlan')
                 }
             }
         },
