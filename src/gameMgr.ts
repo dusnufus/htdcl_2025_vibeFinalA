@@ -1,7 +1,7 @@
 //import { worldInfo } from './worldData'
 import { PlayerManager } from './playerMgr'
 
-import {ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
+import {AudioSource, EasingFunction, Tween, TweenSequence, TweenLoop, inputSystem, InputAction, ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion} from '@dcl/sdk/math'
 import {setUiForMissionState } from './uiMgr'
 import { CandleCollectable, JarCollectable, WhisperCollectable} from './components/collectables'
@@ -15,14 +15,14 @@ import { NPC } from './components/npc'
 
 import { Elevator, FloorData, ElevatorConfig } from './components/elevator'
 
-
 import { 
     createGirlNPC, 
     createShopOwnerNPC, 
     createTempleShamanNPC, 
     createOldLadyNPC, 
     createDoormanNPC, 
-    createLibrarianNPC
+    createLibrarianNPC,
+    createMonsterNPC
 } from './npcCreation'
 
 export class GameManager{
@@ -38,6 +38,8 @@ export class GameManager{
     oldLady!: NPC
     doorman!: NPC
     librarian!: NPC
+
+    monster!: NPC
 
     //this string will control all the transitions and progression
     missionState: string = "introPlaying"
@@ -76,6 +78,10 @@ export class GameManager{
     
     elevator: Elevator
 
+    movingEntities: Array<Entity>
+
+    backgroundMusicEntity?: Entity
+
 	constructor(){
 		//console.log("GameManager: constructor running")
 
@@ -91,6 +97,7 @@ export class GameManager{
         this.oldLady = createOldLadyNPC(this)
         this.doorman = createDoormanNPC(this)
         this.librarian = createLibrarianNPC(this)
+        this.monster = createMonsterNPC(this) as any
 
         //init mission state and display title
         this.missionState = "introPlaying"
@@ -123,7 +130,7 @@ export class GameManager{
         
         //the fall zone should not be on at this point, but would only be on if checkpoints were being used already
         if(this.playerMgr.checkpointSet == true){
-            console.log("GameManager: turning on fall zone")
+            //console.log("GameManager: turning on fall zone")
             this.turnOnFallZone()
         }
 
@@ -133,6 +140,10 @@ export class GameManager{
 	
         // Create the elevator
         this.elevator = new Elevator(elevatorConfig)
+
+        this.movingEntities = []
+        this.placeMovingEntities()
+
     }
 
     whisperCollected(){
@@ -217,6 +228,8 @@ export class GameManager{
 
         console.log('GameManager: video playback complete')
 
+        this.startBackgroundMusic('sounds/bg/Sleeping in the Walls.mp3', 0.5, true)
+
         // Handle video completion based on missionState
 
         //when intro cutscene is complete..
@@ -229,7 +242,7 @@ export class GameManager{
             //move the player to the player's house starting point
             movePlayerTo({
                 //-34,50,52 (temple landing)
-                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,19,-19 (player's house position)
+                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,21,-19 (player's house position)
                 cameraTarget: Vector3.create(10,27,9)
             })
 
@@ -411,9 +424,91 @@ export class GameManager{
 				rotation: data.staticParts[se].rot
 			})
 
+            if(data.staticParts[se].name == "oldMan_a1"){
+                //MeshRenderer.setBox(e)
+                //MeshCollider.setBox(e)
+            }
+
 			this.staticEntities.push(e)
 		}
-    }  
+    }
+
+    placeMovingEntities(){
+        for(var me = 0; me < data.movingEntities.length; me++){
+
+            var e = engine.addEntity()
+            GltfContainer.create(e, {
+                src: data.movingEntities[me].src
+            })
+
+            Transform.create(e, {
+                position: data.movingEntities[me].startPos,
+                scale: data.movingEntities[me].scale,
+                rotation: data.movingEntities[me].rot
+            })
+
+            Tween.create(e, {
+                mode: Tween.Mode.Move({
+                    start: data.movingEntities[me].startPos,
+                    end: data.movingEntities[me].endPos,
+                }),
+                duration: data.movingEntities[me].duration,
+                easingFunction: EasingFunction.EF_LINEAR,
+                
+            })
+
+            TweenSequence.create(e, { sequence: [], loop: TweenLoop.TL_YOYO })
+
+            this.movingEntities.push(e)
+        }
+    }
+
+    startBackgroundMusic(musicPath: string, volume: number = 0.5, loop: boolean = true) {
+        // Stop existing music if playing
+        if (this.backgroundMusicEntity) {
+            this.stopBackgroundMusic()
+        }
+        
+        // Create new music entity
+        this.backgroundMusicEntity = engine.addEntity()
+        
+        // Parent to player so it always follows
+        Transform.create(this.backgroundMusicEntity, {
+            parent: engine.PlayerEntity,
+            position: Vector3.create(0, 0, 0)  // Relative to player (at their position)
+        })
+        
+        AudioSource.create(this.backgroundMusicEntity, {
+            audioClipUrl: musicPath,
+            loop: loop,
+            playing: true,
+            volume: volume
+        })
+    }
+    
+    pauseBackgroundMusic() {
+        if (this.backgroundMusicEntity && AudioSource.has(this.backgroundMusicEntity)) {
+            const audioSource = AudioSource.getMutable(this.backgroundMusicEntity)
+            audioSource.playing = false
+        }
+    }
+    
+    resumeBackgroundMusic() {
+        if (this.backgroundMusicEntity && AudioSource.has(this.backgroundMusicEntity)) {
+            const audioSource = AudioSource.getMutable(this.backgroundMusicEntity)
+            audioSource.playing = true
+        }
+    }
+    
+    stopBackgroundMusic() {
+        if (this.backgroundMusicEntity) {
+            AudioSource.deleteFrom(this.backgroundMusicEntity)
+            engine.removeEntity(this.backgroundMusicEntity)
+            this.backgroundMusicEntity = undefined
+        }
+    }
+
+    
 }
 
 // Define your floors
@@ -437,14 +532,6 @@ const buttonPositions = {
     '5': Vector3.create(1.8, 2.5, 0.6),
     'PH': Vector3.create(1.8, 2.8, 0.6)
 
-
-    /* 'G': Vector3.create(0, 1, 0.5),
-    '1': Vector3.create(1, 1.3, 0.5),
-    '2': Vector3.create(1, 1.6, 0.5),
-    '3': Vector3.create(1, 1.9, 0.5),
-    '4': Vector3.create(1.3, 1, 0.5),
-    '5': Vector3.create(1.3, 1.3, 0.5),
-    'PH': Vector3.create(1.3, 1.6, 0.5) */
 }
 
 // Create elevator configuration
@@ -460,14 +547,33 @@ const elevatorConfig: ElevatorConfig = {
     moveSpeed: 3.0,      // 3 units per second
     doorSpeed: 1.5,      // 1.5 seconds to open/close
     buttonPositions: buttonPositions,
-    callButtonOffset: Vector3.create(-.25, 1.6, 2.4)  // NEW: 2m to the side, 1.5m up from floor
+    callButtonOffset: Vector3.create(-.25, 1.6, 2.4),  // NEW: 2m to the side, 1.5m up from floor
+
+    soundCallButton: {
+        clip: 'sounds/fx/grinding-41043.mp3',
+        volume: 0.8
+    },
+    soundInteriorButton: {
+        clip: 'sounds/fx/grinding-41043.mp3',
+        volume: 0.6
+    },
+    soundAmbient: [
+        { clip: 'sounds/fx/elevator_running1.mp3', volume: 0.3, loop: true },
+        //{ clip: 'sounds/elevator_hum_02.mp3', volume: 0.3, loop: true },
+        //{ clip: 'sounds/elevator_machinery.mp3', volume: 0.4, loop: true }
+    ],
+    soundDoor: {
+        clip: 'sounds/fx/elevator-dingwav-14913.mp3',
+        volume: 0.7
+    }
 }
 
 const data = {
         staticParts: [
 
+            {name: "oldMan_a1", pos: Vector3.create(7.8,14.5,-4.3), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/char/monsterA.glb", scale: Vector3.create(1.25,1.25,1.25)},
+
             {name: "tempTerrain_withPaths", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB_paths.gltf", scale: Vector3.create(1,1,1)},
-            
             
             {name: "cliffs", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/cliffsB.gltf", scale: Vector3.create(1,1,1)},
 
@@ -477,7 +583,7 @@ const data = {
             {name: "skyBlocker", pos: Vector3.create(0,60,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/skyBlockerB.gltf", scale: Vector3.create(1,1,1)},
             {name: "boneBridgeLanding", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeLandingB.gltf", scale: Vector3.create(1,1,1)},
             {name: "boneBridge", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeB.gltf", scale: Vector3.create(1,1,1)},
-            {name: "tempBridges", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempBridgesB.gltf", scale: Vector3.create(1,1,1)},
+            {name: "tempPHouseStairs", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempPlayerHouseStairsB.gltf", scale: Vector3.create(1,1,1)},
             //{name: "cemetaryGate", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryGateB.gltf", scale: Vector3.create(1,1,1)},
             {name: "cemetaryWallOverall", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryWall_overallB.gltf", scale: Vector3.create(1,1,1)},
 
@@ -497,52 +603,16 @@ const data = {
             {name: "coffinBase", pos: Vector3.create(4.4,11.6,31.5), rot: Quaternion.fromEulerDegrees(0,238,0), src: "models/ch/HWN20_Grave_01.glb", scale: Vector3.create(1,1,1)},
             {name: "coffinLid", pos: Vector3.create(1.85,11.3,34), rot: Quaternion.fromEulerDegrees(0,182,0), src: "models/ch/HWN20_Grave_02.glb", scale: Vector3.create(1,1,1)},
         
-            //{name: "tpVideoRoom", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoRoomA.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,120,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "tpVideoScreenA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,240,0), src: "models/test/tpVideoScreenA.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "stretchedLayoutB", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB.glb", scale: Vector3.create(1,1,1)},
-            //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_libraries.glb", scale: Vector3.create(1,1,1)},
-            //{name: "stretchedLayoutB_justLibs", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/test/stretchedLayoutB_aptTownHall.glb", scale: Vector3.create(1,1,1)},
-            
-            //{name: "groundPartsA_00", pos: Vector3.create(20,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/groundPartsA_00.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "groundPartsA_00", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/test/groundPartsA_00.gltf", scale: Vector3.create(
-
-            //{name: "testTerrain", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/testTerrain_temp.glb", scale: Vector3.create(1,1,1)},
-            //{name: "halfGateA", pos: Vector3.create(-8,1,-30), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/halfGateA.gltf", scale: Vector3.create(1,1,1)},
-            
-            /* {name: "tree1", pos: Vector3.create(-3,2,-26), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_01.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(4,2,-25), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_02.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(-3,2,-22), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_03.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(8,2,-20), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_04.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(14,2,-22), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_05.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_06.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_07.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_08.glb", scale: Vector3.create(1,1,1)},
-            {name: "tree1", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/hw/HWN20_Tree_09.glb", scale: Vector3.create(1,1,1)}, */
-
-            //{name: "roughPitA", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/roughPitA.gltf", scale: Vector3.create(1,1,1)},
-
-            /* {name: "glowingFloor", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/8px8p_glowingPlane.glb", scale: Vector3.create(1,1,1)},
-
-            {name: "bed2", pos: Vector3.create(18,0,-17.4), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/bed2_rough.glb", scale: Vector3.create(1,1,1)},
-            {name: "church1", pos: Vector3.create(0,0,57), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/church1_rough.glb", scale: Vector3.create(1,1,1)},
-
-            {name: "townSquare3", pos: Vector3.create(0,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/townSquare3_rough.glb", scale: Vector3.create(1,1,1)},
-            {name: "house4", pos: Vector3.create(20,0,0), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/house4_rough.glb", scale: Vector3.create(2,2,2)},
-            {name: "house3", pos: Vector3.create(-20,0,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/house3_rough.glb", scale: Vector3.create(1,1,1)},
-            {name: "groundSkull", pos: Vector3.create(0,3,0), rot: Quaternion.fromEulerDegrees(0,-90,0), src: "models/groundSkull_rough.glb", scale: Vector3.create(1,1,1)},
-            {name: "apartment6", pos: Vector3.create(0,0,-20), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/apartment6_rough.glb", scale: Vector3.create(1,1,1)},
-
-            {name: "shop4", pos: Vector3.create(-20,0,20), rot: Quaternion.fromEulerDegrees(0,90,0), src: "models/shop4_rough.glb", scale: Vector3.create(1.5,1.5,1.5)},
-            {name: "library1", pos: Vector3.create(20,0,20), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/library1_rough.glb", scale: Vector3.create(1,1,1)},
-            {name: "library3", pos: Vector3.create(30,0,40), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/library3_rough.glb", scale: Vector3.create(1,1,1)}, */
-            
         ],
         movingEntities: [
 
-            //blue platformA
-            //{name: "2x2_movPlat", movementType: "twoPointLoop", startPos: Vector3.create(-10,1.25,22), endPos: Vector3.create(-10,5,22), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/alPvpZone/pvpPartsA/step_2x2.gltf", scale: Vector3.create(1,1,1)},
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-5,39,56.5), endPos: Vector3.create(-5,39,62.5), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1,1,1)},
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-5,41,50), endPos: Vector3.create(-6,41,50), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1,1,1)},
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-4,43,45), endPos: Vector3.create(-4,45.5,45), duration: 2000, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1,1,1)},
+            
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-30,42,21.6), endPos: Vector3.create(-32,42,35), duration: 3500, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1.5,1.5,1.5)},
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-36,43,34), endPos: Vector3.create(-35.5,43,22.75), duration: 3500, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1.5,1.5,1.5)},
+            {name: "bonePlatA", movementType: "twoPointLoop", startPos: Vector3.create(-42,44,20.6), endPos: Vector3.create(-40.44,42,39), duration: 3500, rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/movingPlats/bonePlatA.glb", scale: Vector3.create(1.5,1.5,1.5)},
             
         ],
         candleCollectables: [

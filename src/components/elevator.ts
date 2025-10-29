@@ -1,9 +1,15 @@
 import { 
     engine, Entity, Transform, GltfContainer,
     pointerEventsSystem, InputAction, Tween, TweenSequence, EasingFunction,
-    MeshRenderer, MeshCollider
+    MeshRenderer, MeshCollider, AudioSource
 } from '@dcl/sdk/ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
+
+export interface SoundConfig {
+    clip: string
+    volume?: number
+    loop?: boolean
+}
 
 export interface FloorData {
     id: string          // 'G', '1', '2', '3', '4', '5', 'PH'
@@ -24,6 +30,12 @@ export interface ElevatorConfig {
     doorSpeed: number             // Speed of door animation (seconds)
     buttonPositions: { [key: string]: Vector3 }  // Button positions relative to car
     callButtonOffset: Vector3     // NEW: Position offset for call buttons at each floor (relative to car X/Z)
+    
+    // Sound configurations
+    soundCallButton?: SoundConfig        // Sound for call buttons
+    soundInteriorButton?: SoundConfig    // Sound for interior buttons
+    soundAmbient?: SoundConfig[]         // Array of ambient sounds while moving
+    soundDoor?: SoundConfig              // Sound for door opening/closing
 }
 
 export class Elevator {
@@ -34,6 +46,9 @@ export class Elevator {
     buttonEntities: Map<string, Entity> = new Map()
     callButtonEntities: Map<string, Entity> = new Map()  // NEW: Call buttons at each floor
     
+    // Sound entities
+    ambientSoundEntity?: Entity          // Entity for looping ambient sound
+    currentAmbientSound?: SoundConfig    // Currently playing ambient sound
     
     // Configuration
     config: ElevatorConfig
@@ -61,7 +76,11 @@ export class Elevator {
         // Set starting floor position
         const startFloor = this.config.floors.find(f => f.id === this.currentFloor)
         if (startFloor) {
-            this.config.carPosition.y = startFloor.yPosition
+            this.config.carPosition = Vector3.create(
+                this.config.carPosition.x,
+                startFloor.yPosition,
+                this.config.carPosition.z
+            )
         }
         
         // Create elevator car
@@ -201,6 +220,11 @@ export class Elevator {
     }
     
     updateDoorClosing(dt: number) {
+        // Play door sound when starting to close (only once)
+        if (this.doorProgress === 0 && this.config.soundDoor) {
+            this.playSound(this.config.soundDoor)
+        }
+        
         this.doorProgress += dt / this.config.doorSpeed
         
         if (this.doorProgress >= 1.0) {
@@ -220,12 +244,26 @@ export class Elevator {
     }
     
     updateMovement(dt: number) {
+        // Start ambient sound when movement begins
+        if (this.movementProgress === 0) {
+            this.playRandomAmbientSound()
+        }
+        
+        // Update ambient sound position to follow car
+        if (this.ambientSoundEntity) {
+            const carPos = Transform.get(this.carEntity).position
+            Transform.getMutable(this.ambientSoundEntity).position = carPos
+        }
+        
         const distance = Math.abs(this.targetYPosition - this.startYPosition)
         const moveTime = distance / this.config.moveSpeed
         
         this.movementProgress += dt / moveTime
         
         if (this.movementProgress >= 1.0) {
+            // Stop ambient sound when movement ends
+            this.stopAmbientSound()
+            
             // Arrived at floor
             this.movementProgress = 1.0
             const carTransform = Transform.getMutable(this.carEntity)
@@ -244,6 +282,11 @@ export class Elevator {
     }
     
     updateDoorOpening(dt: number) {
+        // Play door sound when starting to open (only once)
+        if (this.doorProgress === 0 && this.config.soundDoor) {
+            this.playSound(this.config.soundDoor)
+        }
+        
         this.doorProgress += dt / this.config.doorSpeed
         
         if (this.doorProgress >= 1.0) {
@@ -287,6 +330,11 @@ export class Elevator {
     onButtonClicked(floorId: string) {
         console.log(`Elevator: Button clicked for floor ${floorId}`)
         
+        // Play interior button sound
+        if (this.config.soundInteriorButton) {
+            this.playSound(this.config.soundInteriorButton)
+        }
+        
         // Check if already on this floor
         if (this.currentFloor === floorId) {
             console.log(`Elevator: Already on floor ${floorId}`)
@@ -302,7 +350,7 @@ export class Elevator {
         // Find target floor
         const targetFloor = this.config.floors.find(f => f.id === floorId)
         if (!targetFloor) {
-            console.warn(`Elevator: Floor ${floorId} not found`)
+            console.log(`Elevator: Floor ${floorId} not found`)
             return
         }
         
@@ -312,6 +360,11 @@ export class Elevator {
 
     onCallButtonClicked(floorId: string) {
         console.log(`Elevator: Call button clicked for floor ${floorId}`)
+        
+        // Play call button sound
+        if (this.config.soundCallButton) {
+            this.playSound(this.config.soundCallButton)
+        }
         
         // Check if already on this floor
         if (this.currentFloor === floorId && this.state === 'idle') {
@@ -333,7 +386,7 @@ export class Elevator {
         // Find target floor
         const targetFloor = this.config.floors.find(f => f.id === floorId)
         if (!targetFloor) {
-            console.warn(`Elevator: Floor ${floorId} not found`)
+            console.log(`Elevator: Floor ${floorId} not found`)
             return
         }
         
@@ -367,7 +420,58 @@ export class Elevator {
         console.log('Elevator: Forcing door open')
     }
     
+    playSound(soundConfig: SoundConfig, useCarEntity: boolean = true) {
+        if (!soundConfig) return
+        
+        const soundEntity = useCarEntity ? this.carEntity : engine.addEntity()
+        
+        AudioSource.createOrReplace(soundEntity, {
+            audioClipUrl: soundConfig.clip,
+            loop: soundConfig.loop || false,
+            playing: true,
+            volume: soundConfig.volume || 1.0
+        })
+        
+        return soundEntity
+    }
+    
+    playRandomAmbientSound() {
+        if (!this.config.soundAmbient || this.config.soundAmbient.length === 0) return
+        
+        // Stop current ambient sound if playing
+        if (this.ambientSoundEntity) {
+            AudioSource.deleteFrom(this.ambientSoundEntity)
+        }
+        
+        // Pick random sound from array
+        const randomIndex = Math.floor(Math.random() * this.config.soundAmbient.length)
+        this.currentAmbientSound = this.config.soundAmbient[randomIndex]
+        
+        // Create ambient sound entity (not parented, positioned at car)
+        this.ambientSoundEntity = engine.addEntity()
+        Transform.create(this.ambientSoundEntity, {
+            position: Transform.get(this.carEntity).position
+        })
+        
+        AudioSource.create(this.ambientSoundEntity, {
+            audioClipUrl: this.currentAmbientSound.clip,
+            loop: true,  // Ambient sounds loop while moving
+            playing: true,
+            volume: this.currentAmbientSound.volume || 0.5
+        })
+    }
+    
+    stopAmbientSound() {
+        if (this.ambientSoundEntity) {
+            AudioSource.deleteFrom(this.ambientSoundEntity)
+            engine.removeEntity(this.ambientSoundEntity)
+            this.ambientSoundEntity = undefined
+            this.currentAmbientSound = undefined
+        }
+    }
+    
     destroy() {
+        this.stopAmbientSound()  // Stop any playing sounds
         engine.removeEntity(this.carEntity)
         engine.removeEntity(this.doorEntity)
         this.buttonEntities.forEach(button => engine.removeEntity(button))

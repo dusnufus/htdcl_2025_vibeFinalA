@@ -2,10 +2,16 @@ import {
     engine, Entity, Transform, AvatarShape, GltfContainer, 
     pointerEventsSystem, InputAction, TriggerArea, triggerAreaEventsSystem,
     ColliderLayer , MeshCollider,
-    MeshRenderer
+    MeshRenderer, Animator
 } from '@dcl/sdk/ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
 import { GameManager } from '../gameMgr'
+
+export interface AnimationConfig {
+    name: string
+    loop: boolean
+    speed: number
+}
 
 export interface WaypointData {
     position: Vector3
@@ -55,6 +61,16 @@ export interface NPCConfig {
         wearables: string[]
     }
     modelPath?: string  // For future 3D models
+    animations?: AnimationConfig[]  // Animation configurations for GLB models
+    defaultAnimation?: string       // Default animation to play on start
+    
+    // NEW: Animation name mapping (optional)
+    animationNames?: {
+        idle?: string      // Animation to play when idle
+        walk?: string       // Animation to play when walking
+        run?: string        // Animation to play when running (if exists)
+        talk?: string       // Animation to play when talking
+    }
     
     // Interaction options
     clickable: boolean
@@ -94,6 +110,11 @@ export class NPC {
     hasInteracted: boolean = false
     itemsGiven: boolean = false
     
+    // Animation state (for GLB models)
+    currentAnimation: string = ''
+    animationConfigs: Map<string, AnimationConfig> = new Map()
+    animationNames: { idle?: string, walk?: string, run?: string, talk?: string } = {}  // NEW
+    
     // Movement tracking
     movementProgress: number = 0
     startMovePosition: Vector3 = Vector3.Zero()
@@ -106,6 +127,8 @@ export class NPC {
         this.gameMgr = _gameMgr
         this.config = _config
         this.currentDialogId = ''
+
+        this.animationNames = _config.animationNames || {}
         
         // Create main entity
         this.entity = engine.addEntity()
@@ -149,6 +172,53 @@ export class NPC {
             GltfContainer.create(this.entity, {
                 src: _config.modelPath
             })
+            
+            // Set up Animator if animations are defined
+            if (_config.animations && _config.animations.length > 0) {
+                // Store animation configs in a map for easy lookup
+                _config.animations.forEach(animConfig => {
+                    this.animationConfigs.set(animConfig.name, animConfig)
+                })
+                
+                // Create animator states from configs
+                const animatorStates = _config.animations.map(animConfig => ({
+                    clip: animConfig.name,
+                    loop: animConfig.loop,
+                    playing: false,  // Start all as not playing
+                    weight: 0,
+                    speed: animConfig.speed
+                }))
+                
+                Animator.create(this.entity, {
+                    states: animatorStates
+                })
+                
+                // Play default animation if specified
+                const defaultAnim = _config.defaultAnimation || _config.animations[0].name
+                if (this.animationConfigs.has(defaultAnim)) {
+                    this.playAnimation(defaultAnim)
+                }
+
+                // Create a child entity for the collider
+                this.colliderEntity = engine.addEntity()
+                    
+                // Position it centered on the avatar (offset up by ~1 unit to center on body)
+                Transform.create(this.colliderEntity, {
+                    parent: this.entity,  // Parent to the NPC entity
+                    position: Vector3.create(0, 1, 0),  // Offset up to center on body
+                    scale: Vector3.create(0.6, 1.7, 0.6)  // Make it avatar-sized (width, height, depth)
+                })
+                
+                // Add the collider to the child entity
+                MeshCollider.setBox(this.colliderEntity)
+                
+                // Optional: Add MeshRenderer to visualize during testing
+                //sMeshRenderer.setBox(this.colliderEntity)
+
+            }
+        }else {
+            // No visual representation specified - this is an error
+            console.error(`ERROR: NPC ${_config.name} has no visual representation! Set useAvatar=true OR provide modelPath`)
         }
         
         // Set initial transform
@@ -248,6 +318,11 @@ export class NPC {
                 this.state = 'idle'
                 console.log(`${this.config.name} completed waypoint set: ${this.currentWaypointSetId}`)
                 
+                // Play idle animation when waypoint set completes
+                if (this.animationNames.idle && this.animationConfigs.has(this.animationNames.idle)) {
+                    this.playAnimation(this.animationNames.idle)
+                }
+                
                 // Call onComplete callback if defined
                 if (this.currentWaypointSet.onComplete) {
                     this.currentWaypointSet.onComplete()
@@ -262,6 +337,11 @@ export class NPC {
         this.targetMovePosition = nextWaypoint.position
         this.movementProgress = 0
         this.state = 'moving'
+        
+        // Play walk animation when starting to move
+        if (this.animationNames.walk && this.animationConfigs.has(this.animationNames.walk)) {
+            this.playAnimation(this.animationNames.walk)
+        }
     }
     
     arriveAtWaypoint(waypoint: WaypointData) {
@@ -279,8 +359,19 @@ export class NPC {
         if (waypoint.waitTime && waypoint.waitTime > 0) {
             this.state = 'waiting'
             this.waitTimeRemaining = waypoint.waitTime
+            
+            // Play idle animation while waiting
+            if (this.animationNames.idle && this.animationConfigs.has(this.animationNames.idle)) {
+                this.playAnimation(this.animationNames.idle)
+            }
         } else {
             this.state = 'idle'
+            
+            // Play idle animation when arrived
+            if (this.animationNames.idle && this.animationConfigs.has(this.animationNames.idle)) {
+                this.playAnimation(this.animationNames.idle)
+            }
+            
             this.moveToNextWaypoint()
         }
     }
@@ -316,6 +407,8 @@ export class NPC {
             console.log(`WARNING: Conversation ${conversationId} not found for ${this.config.name}`)
             return
         }
+
+        this.state = 'talking'
         
         this.currentConversationId = conversationId
         this.currentConversationSet = this.config.conversationSets[conversationId]
@@ -444,6 +537,84 @@ export class NPC {
         
         if (this.proximityTrigger) {
             Transform.getMutable(this.proximityTrigger).position = position
+        }
+    }
+    
+    playAnimation(
+        animationName: string, 
+        overrideLoop?: boolean, 
+        overrideSpeed?: number, 
+        resetIfSame: boolean = false
+    ) {
+        // Check if this is a GLB model with animations
+        if (this.animationConfigs.size === 0) {
+            console.log(`NPC ${this.config.name}: No animations available`)
+            return
+        }
+        
+        // Check if animation exists
+        if (!this.animationConfigs.has(animationName)) {
+            console.log(`NPC ${this.config.name}: Animation '${animationName}' not found`)
+            return
+        }
+        
+        // If already playing this animation and resetIfSame is false, do nothing
+        if (this.currentAnimation === animationName && !resetIfSame) {
+            return
+        }
+        
+        const config = this.animationConfigs.get(animationName)!
+        
+        // Use override values or fall back to config defaults
+        const loop = overrideLoop !== undefined ? overrideLoop : config.loop
+        const speed = overrideSpeed !== undefined ? overrideSpeed : config.speed
+        
+        console.log(`NPC ${this.config.name}: Playing animation '${animationName}' (loop: ${loop}, speed: ${speed})`)
+        
+        // Stop all animations
+        Animator.stopAllAnimations(this.entity)
+        
+        // Update the animation state with override values
+        const animator = Animator.getMutable(this.entity)
+        const stateIndex = animator.states.findIndex(s => s.clip === animationName)
+        
+        if (stateIndex >= 0) {
+            animator.states[stateIndex].speed = speed
+            animator.states[stateIndex].playing = true
+            animator.states[stateIndex].weight = 1.0
+            animator.states[stateIndex].loop = loop
+            
+            // Set other states to not playing
+            animator.states.forEach((s, index) => {
+                if (index !== stateIndex) {
+                    s.playing = false
+                    s.weight = 0
+                }
+            })
+        }
+        
+        this.currentAnimation = animationName
+    }
+    
+    stopAnimation(animationName?: string) {
+        if (animationName) {
+            const animator = Animator.getMutable(this.entity)
+            const state = animator.states.find(s => s.clip === animationName)
+            if (state) {
+                state.playing = false
+                state.weight = 0
+            }
+            
+            if (this.currentAnimation === animationName) {
+                this.currentAnimation = ''
+            }
+        } else {
+            const animator = Animator.getMutable(this.entity)
+            animator.states.forEach(state => {
+                state.playing = false
+                state.weight = 0
+            })
+            this.currentAnimation = ''
         }
     }
     

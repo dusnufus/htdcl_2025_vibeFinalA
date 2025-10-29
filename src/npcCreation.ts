@@ -14,15 +14,40 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
         startPosition: Vector3.create(30, 12.8, 54.5),
         startRotation: Quaternion.fromEulerDegrees(0, 180, 0),
         
-        useAvatar: true,
+        useAvatar: false,
         useDefaultAvatar: false,
-        avatarData: {
+        /* avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
                 'urn:decentraland:off-chain:base-avatars:brown_pants',
                 'urn:decentraland:off-chain:base-avatars:blue_tshirt',
                 //'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',//(spopky girl)
             ]
+        }, */
+
+        modelPath: 'models/char/theGirl.glb',
+
+        // NEW: Define animations with loop and speed defaults
+        animations: [
+            { name: 'Walking', loop: true, speed: 1.0 },
+            { name: 'Walking_Woman', loop: true, speed: 1.2 },
+            { name: 'Talk_with_Left_Hand_Raised', loop: true, speed: 1 },
+            { name: 'Talk_with_Hands_Open', loop: true, speed: 1 },
+            { name: 'Running', loop: false, speed: 1.0 },
+            { name: 'Jump_Run', loop: true, speed: 1 },
+            { name: 'Jump_Over_Obstacle_2', loop: false, speed: 1.0 },
+            { name: 'Idle', loop: true, speed: 1 },
+            { name: 'Idle_7', loop: false, speed: 1.0 },
+            { name: 'Idle_6', loop: false, speed: 1.0 }
+        ],
+        defaultAnimation: 'Walking',
+
+        // ADD THIS - Maps the system's concept of "idle" and "walk" to your actual animation names
+        animationNames: {
+            idle: 'Idle',    // What to play when not moving
+            walk: 'Walking_Woman',    // What to play when walking
+            run: 'Running',     // What to play when running (if needed)
+            talk: 'Talk_with_Hands_Open' // What to play when talking (if needed)
         },
         
         clickable: true,
@@ -41,6 +66,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 moveSpeed: 3.5,
                 onComplete: () => {
                     //console.log('Girl ran out of house - ready for player interaction')
+                    gameMgr.girl.playAnimation('Talk_with_Hands_Open', true, 1, true)
                     gameMgr.girl.prepareConversation('firstMeeting')
                 }
             },
@@ -78,6 +104,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 onComplete: () => {
                    //now start the searching the church waypoints
                    gameMgr.girl.startWaypointSet('searchInsideChurch')
+                   gameMgr.girl.playAnimation('Idle', true, 1, true)
                 }
             },
             'searchInsideChurch': {
@@ -918,6 +945,111 @@ export function createLibrarianNPC(gameMgr: GameManager): NPC {
                     }
                 }
             }
+        },
+        
+        canGiveItems: false
+    })
+}
+
+export function createMonsterNPC(gameMgr: GameManager): NPC {
+    return new NPC(gameMgr, {
+        id: 'monster',
+        name: 'monster',
+        startPosition: Vector3.create(14.25,12.6,11.5),
+        startRotation: Quaternion.fromEulerDegrees(0,319,0),
+
+        useAvatar: false,
+        useDefaultAvatar: false,
+        /* 
+        avatarData: {
+            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
+            wearables: [
+                'urn:decentraland:off-chain:base-avatars:brown_pants',
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
+            ]
+        }, */
+        modelPath: 'models/char/monsterA.glb',
+
+        // NEW: Define animations with loop and speed defaults
+        animations: [
+            { name: 'Walking', loop: true, speed: 1.0 },
+            { name: 'Zombie_Scream', loop: true, speed: 1.2 },
+            { name: 'Unsteady_Walk', loop: true, speed: 1 },
+            { name: 'Female_Run_Forward_Pick_Up_Right', loop: true, speed: 1 },
+            { name: 'Running', loop: false, speed: 1.0 }
+        ],
+        defaultAnimation: 'Walking',
+
+        // ADD THIS - Maps the system's concept of "idle" and "walk" to your actual animation names
+        animationNames: {
+            idle: 'Unsteady_Walk',    // What to play when not moving
+            walk: 'Walking',    // What to play when walking
+            run: 'Running',     // What to play when running (if needed)
+            talk: 'Zombie_Scream' // What to play when talking (if needed)
+        },
+
+        clickable: false,
+        clickHoverText: 'YOU BETTER RUN!',
+        hasProximityTrigger: true,
+        proximityRadius: 4,
+        
+        waypointSets: {
+            'walkToShelves': {
+                id: 'walkToShelves',
+                waypoints: [
+                    { position: Vector3.create(-24, 6, 1), rotation: Quaternion.fromEulerDegrees(0, 90, 0), waitTime: 2 },
+                    { position: Vector3.create(-26, 6, 1), rotation: Quaternion.fromEulerDegrees(0, 0, 0), waitTime: 0 }
+                ],
+                loopWaypoints: false,
+                moveSpeed: 1.5,
+                // onComplete: () => {
+                //     console.log('Librarian found the book and returned')
+                // }
+            },
+            'walkToDesk': {
+                id: 'walkToDesk',
+                waypoints: [
+                    { position: Vector3.create(-26, 6, 4), rotation: Quaternion.fromEulerDegrees(0, 180, 0), waitTime: 1 },
+                    { position: Vector3.create(-26, 6, 1), rotation: Quaternion.fromEulerDegrees(0, 0, 0), waitTime: 0 }
+                ],
+                loopWaypoints: false,
+                moveSpeed: 1.5,
+                // onComplete: () => {
+                //     console.log('Librarian back at desk ready to help')
+                // }
+            }
+        },
+        
+        defaultDialogs: [
+            /* "Welcome to the library.",
+            "Please keep quiet.",
+            "All books must be returned in two weeks." */
+        ],
+        
+        conversationSets: {
+            /* 'librarianTalk': {
+                id: 'librarianTalk',
+                startDialogId: 'librarian1',
+                dialogs: {
+                    'librarian1': {
+                        speaker: 'npc',
+                        text: 'Hello! How can I help you today?',
+                        nextDialogId: 'player1'
+                    },
+                    'player1': {
+                        speaker: 'player',
+                        text: 'I\'m looking for a book about the history of this town.',
+                        nextDialogId: 'librarian2'
+                    },
+                    'librarian2': {
+                        speaker: 'npc',
+                        text: 'Ah yes, we have several books on local history. Let me show you.',
+                        action: () => {
+                            gameMgr.missionState = 'metLibrarian'
+                        }
+                    }
+                }
+            } */
         },
         
         canGiveItems: false
