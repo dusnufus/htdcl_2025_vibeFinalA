@@ -134,56 +134,39 @@ export class TpVideoRoom{
         videoEventsSystem.registerVideoEventsEntity(
             this.screenEntities[0],
             (videoEvent) => {
+                // Only process if we're in playing state
+                if (this.videoState !== 'playing') return
+                
                 // Capture video length when available and set fallback duration
                 if (videoEvent.videoLength > 0 && this.expectedVideoDuration === 0) {
                     this.expectedVideoDuration = videoEvent.videoLength + 5  // Add 5 second buffer
                     console.log(`Video length detected: ${videoEvent.videoLength.toFixed(2)}s, ` + 
                                `fallback timer set to ${this.expectedVideoDuration.toFixed(2)}s`)
                 }
-
-                if (this.videoState === 'playing' && 
-                    (videoEvent.currentOffset >= videoEvent.videoLength - 0.5 || 
-                     videoEvent.state != VideoState.VS_PLAYING)) {
+        
+                // Only check for completion if:
+                // 1. Video is actually playing
+                // 2. Video length is valid (> 0)
+                // 3. Current offset is near the end (within 0.5s of end)
+                // 4. We've played for at least 2 seconds (to prevent early triggers)
+                if (videoEvent.state === VideoState.VS_PLAYING && 
+                    videoEvent.videoLength > 0 && 
+                    videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
+                    this.videoPlayingTime >= 2.0) {  // Minimum 2 seconds played
                     console.log('video ended (via video events), starting wait period')
                     this.videoState = 'waitingAfterEnd'
                     this.elapsedWaitTime = 0
+                } else if (videoEvent.state === VideoState.VS_PAUSED && 
+                           videoEvent.videoLength > 0 &&
+                           videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
+                           this.videoPlayingTime >= 2.0) {
+                    // Also handle paused state when video reaches end
+                    console.log('video ended (paused at end), starting wait period')
+                    this.videoState = 'waitingAfterEnd'
+                    this.elapsedWaitTime = 0
                 }
-        
-                /* switch (videoEvent.state) {
-                    case VideoState.VS_READY:
-                        console.log('video event - video is READY')
-                        break
-                    case VideoState.VS_NONE:
-                        console.log('video event - video is in NO STATE')
-                        break
-                    case VideoState.VS_ERROR:
-                        console.log('video event - video ERROR')
-                        break
-                    case VideoState.VS_SEEKING:
-                        console.log('video event - video is SEEKING')
-                        break
-                    case VideoState.VS_LOADING:
-                        console.log('video event - video is LOADING')
-                        break
-                    case VideoState.VS_BUFFERING:
-                        console.log('video event - video is BUFFERING')
-                        break
-                    case VideoState.VS_PLAYING:
-                        console.log('video event - video started PLAYING')
-                        break
-                    case VideoState.VS_PAUSED:
-                        console.log('video event - video is PAUSED')
-                        // Check if video ended (currentOffset near videoLength)
-                        if (this.videoState === 'playing' && 
-                            videoEvent.currentOffset >= videoEvent.videoLength - 0.5) {
-                            console.log('video ended, starting wait period')
-                            this.videoState = 'waitingAfterEnd'
-                        }
-                        break
-                } */
             }
         )
-
     }
     
 	

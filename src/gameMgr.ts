@@ -125,7 +125,7 @@ export class GameManager{
                                                                     data.checkpointTriggerZones_up[ctz].scale, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                    true))
+                                                                    false))
         }
         
         //the fall zone should not be on at this point, but would only be on if checkpoints were being used already
@@ -617,13 +617,13 @@ const data = {
         ],
         candleCollectables: [
 
-            {name: "candle17", pos: Vector3.create(22.25,16,15), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle18", pos: Vector3.create(22.25,16,14.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle19", pos: Vector3.create(22.25,16,14), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(22.25,16,13.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle17", pos: Vector3.create(22.25,16,13), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle20", pos: Vector3.create(22.25,16,12.5), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
-            {name: "candle21", pos: Vector3.create(22.25,16,12), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle17", pos: Vector3.create(31.58,18,12.75), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle18", pos: Vector3.create(35,15.7,8.6), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_18.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle19", pos: Vector3.create(49,16.2,10.35), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_19.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(48.8,14.26,22.57), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle17", pos: Vector3.create(24.52,18.13,21.07), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_17.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle20", pos: Vector3.create(42.09,14.48,26.35), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_20.glb", scale: Vector3.create(1,1,1)},
+            {name: "candle21", pos: Vector3.create(39.73,17.04,14.46), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/ch/HWN20_Candle_21.glb", scale: Vector3.create(1,1,1)},
             
         ],
         placementZones: [

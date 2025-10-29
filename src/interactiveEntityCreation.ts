@@ -123,16 +123,7 @@ export function createShadowEnemy(gameMgr: GameManager): InteractiveEntity {
 //Unsteady_Walk
 //Running
 
-//--Shop anamations
-//Walking
-//Talk_with_Left_Hand_on_Hip
-//Talk_with_Hands_Open
-//Talk_Passionately
-//Shrug
-//Running
-//Male_Bend_Over_Pick_Up
-//Idle_9
-//Checkout_Gesture
+
 
 
 //--library animations
