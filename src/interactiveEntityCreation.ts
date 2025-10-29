@@ -115,3 +115,41 @@ export function createShadowEnemy(gameMgr: GameManager): InteractiveEntity {
 }
 
 // Add more enemy creation functions as needed...
+
+//--skeleton animations
+//run_fast_8_inplace
+//Zoombie_Scream
+//Walking
+//Unsteady_Walk
+//Running
+
+//--Shop anamations
+//Walking
+//Talk_with_Left_Hand_on_Hip
+//Talk_with_Hands_Open
+//Talk_Passionately
+//Shrug
+//Running
+//Male_Bend_Over_Pick_Up
+//Idle_9
+//Checkout_Gesture
+
+
+//--library animations
+//Walking
+//Running
+//Idle_4
+//Elderly_Shaky_Walk
+//Confused_Scratch
+//Checkout_Gesture
+//Chair_Sit_Idle_F
+
+//NOT SURE animations
+//Walking
+//Talk_with_Left_Hand_on_Hip
+//Running
+//Idle_4
+//Elderly_Shaky_Walk
+//Confused_Scratch
+//Checkout_Gesture
+//Chair_Sit_Idle_F

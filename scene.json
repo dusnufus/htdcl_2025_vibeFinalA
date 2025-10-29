@@ -1,18 +1,18 @@
 {
   "worldConfiguration": {
-		"name": "portparadox.dcl.eth"
+		"name": "ghosttown.dcl.eth"
 	},
   "ecs7": true,
   "runtimeVersion": "7",
   "display": {
-    "title": "PortParadox Home",
-    "description": "testing in progres...",
-    "navmapThumbnail": "images/scene-thumbnail.png",
+    "title": "Ghost Town",
+    "description": "BringYourVibe DCL Hackathon 2025 Version",
+    "navmapThumbnail": "images/tn_ghostTownA.png",
     "favicon": "favicon_asset"
   },
-  "owner": "",
+  "owner": "Dusnufus",
   "contact": {
-    "name": "SDK",
+    "name": "dusnufus",
     "email": ""
   },
   "main": "bin/index.js",

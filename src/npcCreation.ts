@@ -491,17 +491,43 @@ export function createShopOwnerNPC(gameMgr: GameManager): NPC {
         id: 'shopKeeper',
         name: 'Shop Keeper',
         startPosition: Vector3.create(-25,11.25,17.5),
-        startRotation: Quaternion.fromEulerDegrees(0,180,0),
+        startRotation: Quaternion.fromEulerDegrees(0,150,0),
 
-        useAvatar: true,
+        useAvatar: false,
         useDefaultAvatar: false,
-        avatarData: {
-            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+        /* avatarData: {
+            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
                 'urn:decentraland:off-chain:base-avatars:brown_pants',
                 'urn:decentraland:off-chain:base-avatars:blue_tshirt',
+                //'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',//(spopky girl)
             ]
+        }, */
+
+        modelPath: 'models/char/shopkeepA.glb',
+
+        // NEW: Define animations with loop and speed defaults
+        animations: [
+            { name: 'Walking', loop: true, speed: 1.0 },
+            { name: 'Talk_with_Left_Hand_on_Hip', loop: true, speed: 1.2 },
+            { name: 'Talk_with_Hands_Open', loop: true, speed: 1 },
+            { name: 'Talk_Passionately', loop: true, speed: 1 },
+            { name: 'Shrug', loop: false, speed: 1.0 },
+            { name: 'Running', loop: true, speed: 1 },
+            { name: 'Male_Bend_Over_Pick_Up', loop: false, speed: 1.0 },
+            { name: 'Idle_9', loop: true, speed: 1 },
+            { name: 'Checkout_Gesture', loop: false, speed: 1.0 }
+        ],
+        defaultAnimation: 'Talk_Passionately',
+
+        // ADD THIS - Maps the system's concept of "idle" and "walk" to your actual animation names
+        animationNames: {
+            idle: 'Idle_9',    // What to play when not moving
+            walk: 'Walking',    // What to play when walking
+            run: 'Running',     // What to play when running (if needed)
+            talk: 'Talk_Passionately' // What to play when talking (if needed)
         },
+
         clickable: true,
         clickHoverText: 'Talk to ShopKeeper',
         hasProximityTrigger: true,
@@ -711,14 +737,40 @@ export function createOldLadyNPC(gameMgr: GameManager): NPC {
         startPosition: Vector3.create(-27,10.55,2.5),
         startRotation: Quaternion.fromEulerDegrees(0,0,0),
 
-        useAvatar: true,
+        useAvatar: false,
         useDefaultAvatar: false,
-        avatarData: {
+        /* avatarData: {
             bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
                 'urn:decentraland:off-chain:base-avatars:brown_pants',
                 'urn:decentraland:off-chain:base-avatars:blue_tshirt',
+                //'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',//(spopky girl)
             ]
+        }, */
+
+        modelPath: 'models/char/oldLadyA.glb',
+
+        // NEW: Define animations with loop and speed defaults
+        animations: [
+            { name: 'Walking', loop: true, speed: 1.0 },
+            { name: 'open_door', loop: true, speed: 1.2 },
+            { name: 'Sitting_Answering_Questions', loop: true, speed: 1 },
+            { name: 'Sit_and_Drink', loop: true, speed: 1 },
+            { name: 'Running', loop: false, speed: 1.0 },
+            { name: 'Elderly_Shaky_Walk_inplace', loop: true, speed: 1 },
+            //{ name: 'Jump_Over_Obstacle_2', loop: false, speed: 1.0 },
+            { name: 'Idle_4', loop: true, speed: 1 },
+            //{ name: 'Idle_7', loop: false, speed: 1.0 },
+            //{ name: 'Idle_6', loop: false, speed: 1.0 }
+        ],
+        defaultAnimation: 'Idle_4',
+
+        // ADD THIS - Maps the system's concept of "idle" and "walk" to your actual animation names
+        animationNames: {
+            idle: 'Idle_4',    // What to play when not moving
+            walk: 'Elderly_Shaky_Walk_inplace',    // What to play when walking
+            run: 'Running',     // What to play when running (if needed)
+            talk: 'Idle_4' // What to play when talking (if needed)
         },
         clickable: true,
         clickHoverText: 'Talk to Old Lady',
@@ -795,16 +847,40 @@ export function createDoormanNPC(gameMgr: GameManager): NPC {
         startPosition: Vector3.create(-21.75,10.1,-1.75),
         startRotation: Quaternion.fromEulerDegrees(0,0,0),
 
-        useAvatar: true,
+        useAvatar: false,
         useDefaultAvatar: false,
-        avatarData: {
-            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseMale',
+        /* avatarData: {
+            bodyShape: 'urn:decentraland:off-chain:base-avatars:BaseFemale',
             wearables: [
-                //"urn:decentraland:matic:collections-v2:0xc714bac4b6af6c7407dd4f6587ed332aa21fad84:0", //(funky hat)
                 'urn:decentraland:off-chain:base-avatars:brown_pants',
-                'urn:decentraland:off-chain:base-avatars:red_tshirt',
-                //'urn:decentraland:matic:collections-v2:0xbcc888ae057f3490fa0b5c03977af9c80bdd9b49:0' //(suit)
+                'urn:decentraland:off-chain:base-avatars:blue_tshirt',
+                //'urn:decentraland:matic:collections-v2:0x768c1027b1f1a452ecb8dab017a1e630a75f0d30:0',//(spopky girl)
             ]
+        }, */
+
+        modelPath: 'models/char/oldManA1.glb',
+
+        // NEW: Define animations with loop and speed defaults
+        animations: [
+            { name: 'Walking', loop: true, speed: 1.0 },
+            /* 
+            { name: 'Talk_with_Left_Hand_on_Hip', loop: true, speed: 1.2 },
+            { name: 'Talk_with_Hands_Open', loop: true, speed: 1 },
+            { name: 'Talk_Passionately', loop: true, speed: 1 },
+            { name: 'Shrug', loop: false, speed: 1.0 },
+            { name: 'Running', loop: true, speed: 1 },
+            { name: 'Male_Bend_Over_Pick_Up', loop: false, speed: 1.0 },
+            { name: 'Idle_9', loop: true, speed: 1 },
+            { name: 'Checkout_Gesture', loop: false, speed: 1.0 } */
+        ],
+        defaultAnimation: 'idle',
+
+        // ADD THIS - Maps the system's concept of "idle" and "walk" to your actual animation names
+        animationNames: {
+            idle: 'idle',    // What to play when not moving
+            walk: 'walk',    // What to play when walking
+            run: 'run',     // What to play when running (if needed)
+            talk: 'talk' // What to play when talking (if needed)
         },
         clickable: true,
         clickHoverText: 'Talk to Doorman',

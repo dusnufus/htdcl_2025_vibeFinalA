@@ -104,14 +104,14 @@ export class GameManager{
         this.missionTitle = "EXPLORE THE TOWN"
 
         //activate a trigger for the girl's house
-        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), true)
+        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), false)
 	
         //set the UI for the mission state
         setUiForMissionState(this, this.missionState)
         
         //create the video room and set the intro video
-		this.tpVideoRoom = new TpVideoRoom(this, "models/test/tpVideoRoomA.gltf", "models/test/tpVideoScreenA_noTex.gltf", 5)
-        this.tpVideoRoom.setVideo("videos/toTitleA_medium.mp4", 3, 3)
+		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
+        this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
         
         //init any arrays/vars that will be used later in the game progression
         this.candles = []
@@ -134,9 +134,9 @@ export class GameManager{
             this.turnOnFallZone()
         }
 
-        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
+        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), false)
 
-        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), true)
+        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), false)
 	
         // Create the elevator
         this.elevator = new Elevator(elevatorConfig)
@@ -192,7 +192,7 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_down[ctz].scale, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnLookAt, 
-                                                                        true))
+                                                                        false))
             }
             //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
             this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), true)
@@ -206,7 +206,7 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_up[ctz].scale, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                        true))
+                                                                        false))
             }
             //spawn the reverse checkpoints trigger zone (at temple landing)
             this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
@@ -228,7 +228,7 @@ export class GameManager{
 
         console.log('GameManager: video playback complete')
 
-        this.startBackgroundMusic('sounds/bg/Sleeping in the Walls.mp3', 0.5, true)
+        this.startBackgroundMusic('sounds/bg/Sleeping in the Walls.mp3', 0.4, true)
 
         // Handle video completion based on missionState
 
