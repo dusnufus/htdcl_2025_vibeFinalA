@@ -730,13 +730,14 @@ export function createTempleShamanNPC(gameMgr: GameManager): NPC {
     })
 }
 
-export function createOldLadyNPC(gameMgr: GameManager): NPC {
+export function createOldLadyNPC(gameMgr: GameManager, pos: Vector3, rot: Quaternion): NPC {
     return new NPC(gameMgr, {
         id: 'oldLady',
         name: 'Old Lady',
-        startPosition: Vector3.create(-27,10.55,2.5),
-        startRotation: Quaternion.fromEulerDegrees(0,0,0),
-
+       //startPosition: Vector3.create(-27,10.55,2.5),
+        //startRotation: Quaternion.fromEulerDegrees(0,0,0),
+        startPosition: pos,
+        startRotation: rot,
         useAvatar: false,
         useDefaultAvatar: false,
         /* avatarData: {

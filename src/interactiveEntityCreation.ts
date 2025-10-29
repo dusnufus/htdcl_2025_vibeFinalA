@@ -68,12 +68,12 @@ export function createZombieEnemy(gameMgr: GameManager): InteractiveEntity {
     })
 }
 
-export function createShadowEnemy(gameMgr: GameManager): InteractiveEntity {
+export function createSkeletonEnemy(gameMgr: GameManager, pos: Vector3 = Vector3.create(15, 0, 15), rot: Quaternion = Quaternion.fromEulerDegrees(0, 90, 0)): InteractiveEntity {
     return new InteractiveEntity(gameMgr, {
         id: 'shadow1',
-        modelPath: 'models/enemies/shadow.glb',
-        position: Vector3.create(15, 0, 15),
-        rotation: Quaternion.fromEulerDegrees(0, 90, 0),
+        modelPath: 'models/char/skeletonA.glb',
+        position: pos,
+        rotation: rot,
         
         animations: [
             { name: 'idle', loop: true, speed: 1.0 },
@@ -89,18 +89,18 @@ export function createShadowEnemy(gameMgr: GameManager): InteractiveEntity {
             float: {
                 id: 'float',
                 waypoints: [
-                    { position: Vector3.create(15, 0, 15), rotation: Quaternion.fromEulerDegrees(0, 90, 0), waitTime: 3 },
-                    { position: Vector3.create(20, 0, 20), rotation: Quaternion.fromEulerDegrees(0, 90, 0), waitTime: 3 }
+                    { position: Vector3.create(pos.x +2, pos.y +5, pos.z +2), rotation: Quaternion.fromEulerDegrees(0, 270, 0), waitTime: 1.5 },
+                    { position: Vector3.create(pos.x -2, pos.y +2, pos.z -2), rotation: Quaternion.fromEulerDegrees(0, 45, 0), waitTime: .5 }
                 ],
                 loopWaypoints: true,
-                moveSpeed: 2.0
+                moveSpeed: 3
             }
         },
         autoStartWaypointSet: 'float',
         
         chaseSpeed: 3.0,
         onChaseStart: () => {
-            console.log('Shadow started chasing player!')
+            console.log('Skeleton started chasing player!')
         },
         onChaseReached: () => {
             console.log('Player caught by shadow!')

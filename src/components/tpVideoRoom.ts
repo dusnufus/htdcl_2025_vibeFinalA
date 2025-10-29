@@ -1,6 +1,7 @@
 import { engine, Transform, GltfContainer, Entity, Material, VideoPlayer, GltfNodeModifiers, VideoState, videoEventsSystem } from '@dcl/sdk/ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
 import { GameManager } from '../gameMgr'
+import { movePlayerTo } from '~system/RestrictedActions'
 
 export class TpVideoRoom{
 
@@ -18,6 +19,7 @@ export class TpVideoRoom{
     // Fallback timer properties
     videoPlayingTime: number = 0
     expectedVideoDuration: number = 0  // videoLength + 5 second buffer
+    videoViewingBoxRadius: number = 5  // Maximum distance from center before teleporting
 
 	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number){
 
@@ -68,6 +70,9 @@ export class TpVideoRoom{
             } else if (this.videoState === 'playing') {
                 // Fallback timer: track actual playing time
                 this.videoPlayingTime += dt
+                
+                // Check if player is still in viewing box
+                this.checkAndCorrectPlayerPosition()
                 
                 // If we've exceeded expected duration + buffer, force end
                 if (this.expectedVideoDuration > 0 && 
@@ -169,5 +174,24 @@ export class TpVideoRoom{
         )
     }
     
+    checkAndCorrectPlayerPosition() {
+        const playerTransform = Transform.getOrNull(engine.PlayerEntity)
+        if (!playerTransform) return
+        
+        const playerPos = playerTransform.position
+        const viewingBoxCenter = Vector3.create(0, 0, 0)
+        const distance = Vector3.distance(playerPos, viewingBoxCenter)
+        
+        // If player is outside the viewing box, teleport them back
+        if (distance > this.videoViewingBoxRadius) {
+            console.log(`Player outside viewing box (${distance.toFixed(2)}m), teleporting to viewing position`)
+            
+            // Use movePlayerTo for smooth teleport
+            movePlayerTo({
+                newRelativePosition: Vector3.create(0, 1, 0),
+                cameraTarget: Vector3.create(0, 1, -5)  // Look at the video screens
+            })
+        }
+    }
 	
 }

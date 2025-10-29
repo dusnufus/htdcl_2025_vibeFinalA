@@ -14,6 +14,8 @@ import { movePlayerTo, triggerEmote  } from '~system/RestrictedActions'
 import { NPC } from './components/npc'
 
 import { Elevator, FloorData, ElevatorConfig } from './components/elevator'
+import { createSkeletonEnemy } from './interactiveEntityCreation'
+import { InteractiveEntity } from './components/interactiveEntity'
 
 import { 
     createGirlNPC, 
@@ -82,6 +84,8 @@ export class GameManager{
 
     backgroundMusicEntity?: Entity
 
+    skeletons: Array<InteractiveEntity> = []
+
 	constructor(){
 		//console.log("GameManager: constructor running")
 
@@ -94,7 +98,13 @@ export class GameManager{
         this.girl = createGirlNPC(this)
         this.shopKeeper = createShopOwnerNPC(this)
         this.templeShaman = createTempleShamanNPC(this)
-        this.oldLady = createOldLadyNPC(this)
+        //random int from 1 to 6 for floor
+        let f = Math.ceil(Math.random() * 6)
+        //random float from 0 to 1 for position
+        let p = Math.random()       
+        this.oldLady = createOldLadyNPC(this, 
+            (p<0.5) ? Vector3.create(-26.63,floors[f].yPosition,-16.58) : Vector3.create(-29.53,floors[f].yPosition,-14.62), 
+            (p<0.5) ? Quaternion.fromEulerDegrees(0,97,0) : Quaternion.fromEulerDegrees(0,323,0))
         this.doorman = createDoormanNPC(this)
         this.librarian = createLibrarianNPC(this)
         this.monster = createMonsterNPC(this) as any
@@ -147,6 +157,7 @@ export class GameManager{
     }
 
     whisperCollected(){
+        engine.removeEntity(this.whisper)
         this.missionState = 'haveTheWhisper'
         this.missionTitle = 'GTFO THIS GRAVEYARD!'
         this.girl.startWaypointSet('runOutOfGraveyard')
@@ -228,7 +239,7 @@ export class GameManager{
 
         console.log('GameManager: video playback complete')
 
-        this.startBackgroundMusic('sounds/bg/Sleeping in the Walls.mp3', 0.4, true)
+        this.startBackgroundMusic('sounds/bg/dysto.mp3', 0.4, true)
 
         // Handle video completion based on missionState
 
@@ -338,7 +349,10 @@ export class GameManager{
 
         //TODO: add the graveyard trigger zone
         
-
+        //spawn two skeletons
+        this.skeletons.push(createSkeletonEnemy(this, Vector3.create(10.22,12.08,33.35), Quaternion.fromEulerDegrees(0,196,0)))
+        this.skeletons.push(createSkeletonEnemy(this, Vector3.create(-9.42,11.55,20.42), Quaternion.fromEulerDegrees(0,17.5,0)))
+        
         this.missionState = 'headed to the graveyard'
         this.missionTitle = 'COLLECT THE WHISPER'
         this.girl.startWaypointSet('walkToGraveyard')
@@ -350,7 +364,7 @@ export class GameManager{
         //TODO: remove the collider keeping player out of the graveyard?
 
         //temp: spawn the whisper collectable
-        this.whisper = WhisperCollectable(this, "models/final/whisperB.gltf", Vector3.create(1.85,12.3,34), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
+        this.whisper = WhisperCollectable(this, "models/final/whisperB.gltf", Vector3.create(1.85,11.35,34.57), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
     }
 
     itemCheck(){
@@ -513,13 +527,13 @@ export class GameManager{
 
 // Define your floors
 const floors: FloorData[] = [
-    { id: 'G', yPosition: 10.66, label: 'Ground Floor' },
-    { id: '1', yPosition: 14.5, label: '1st Floor' },
-    { id: '2', yPosition: 19, label: '2nd Floor' },
-    { id: '3', yPosition: 23.5, label: '3rd Floor' },
-    { id: '4', yPosition: 28, label: '4th Floor' },
-    { id: '5', yPosition: 32.5, label: '5th Floor' },
-    { id: 'PH', yPosition: 37, label: 'Penthouse' }
+    { id: 'G', yPosition: 10.56, label: 'Ground Floor' },
+    { id: '1', yPosition: 14.28, label: '1st Floor' },
+    { id: '2', yPosition: 18.68, label: '2nd Floor' },
+    { id: '3', yPosition: 23.08, label: '3rd Floor' },
+    { id: '4', yPosition: 27.48, label: '4th Floor' },
+    { id: '5', yPosition: 31.88, label: '5th Floor' },
+    { id: 'PH', yPosition: 36.28, label: 'Penthouse' }
 ]
 
 // Define button positions inside the elevator (relative to car)
@@ -573,7 +587,7 @@ const data = {
 
             {name: "oldMan_a1", pos: Vector3.create(7.8,14.5,-4.3), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/char/monsterA.glb", scale: Vector3.create(1.25,1.25,1.25)},
 
-            {name: "tempTerrain_withPaths", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB_paths.gltf", scale: Vector3.create(1,1,1)},
+            {name: "tempTerrain_withPaths", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/lowerTerrainB_paths.glb", scale: Vector3.create(1,1,1)},
             
             {name: "cliffs", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/cliffsB.gltf", scale: Vector3.create(1,1,1)},
 
@@ -584,7 +598,6 @@ const data = {
             {name: "boneBridgeLanding", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeLandingB.gltf", scale: Vector3.create(1,1,1)},
             {name: "boneBridge", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/boneBridgeB.gltf", scale: Vector3.create(1,1,1)},
             {name: "tempPHouseStairs", pos: Vector3.create(0,10,0), rot: Quaternion.fromEulerDegrees(0,180,0), src: "models/final/tempPlayerHouseStairsB.gltf", scale: Vector3.create(1,1,1)},
-            //{name: "cemetaryGate", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryGateB.gltf", scale: Vector3.create(1,1,1)},
             {name: "cemetaryWallOverall", pos: Vector3.create(2.6,11.85,22), rot: Quaternion.fromEulerDegrees(0,335,0), src: "models/final/cemetaryWall_overallB.gltf", scale: Vector3.create(1,1,1)},
 
             {name: "fountain", pos: Vector3.create(7.5,12.5,11.125), rot: Quaternion.fromEulerDegrees(0,0,0), src: "models/final/origBuildings/fountain.glb", scale: Vector3.create(1,1,1)},
@@ -603,6 +616,11 @@ const data = {
             {name: "coffinBase", pos: Vector3.create(4.4,11.6,31.5), rot: Quaternion.fromEulerDegrees(0,238,0), src: "models/ch/HWN20_Grave_01.glb", scale: Vector3.create(1,1,1)},
             {name: "coffinLid", pos: Vector3.create(1.85,11.3,34), rot: Quaternion.fromEulerDegrees(0,182,0), src: "models/ch/HWN20_Grave_02.glb", scale: Vector3.create(1,1,1)},
         
+            {name: "coffinBase", pos: Vector3.create(10.22,12.08,33.35), rot: Quaternion.fromEulerDegrees(0,196,0), src: "models/ch/HWN20_Grave_01.glb", scale: Vector3.create(1,1,1)},
+            {name: "coffinLid", pos: Vector3.create(-9.42,11.55,20.42), rot: Quaternion.fromEulerDegrees(0,17.5,0), src: "models/ch/HWN20_Grave_02.glb", scale: Vector3.create(1,1,1)},
+            {name: "coffinBase", pos: Vector3.create(-5.65,11.9,17.39), rot: Quaternion.fromEulerDegrees(0,14.19,0), src: "models/ch/HWN20_Grave_03.glb", scale: Vector3.create(1,1,1)},
+            {name: "coffinLid", pos: Vector3.create(6.36,11.85,28.1), rot: Quaternion.fromEulerDegrees(0,245,0), src: "models/ch/HWN20_Grave_04.glb", scale: Vector3.create(1,1,1)},
+            {name: "crypt", pos: Vector3.create(-5.04,10.45,32.35), rot: Quaternion.fromEulerDegrees(0,138,0), src: "models/ch/HWN20_Grave_05.glb", scale: Vector3.create(1,1,1)},
         ],
         movingEntities: [
 
