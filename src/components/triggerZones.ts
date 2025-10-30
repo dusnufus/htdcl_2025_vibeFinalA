@@ -8,7 +8,7 @@ export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: V
     console.log("HouseTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,
@@ -46,7 +46,7 @@ export function CheckpointTriggerZone(
     console.log(`CheckpointTriggerZone: creating ${_checkpointId}`)
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,
@@ -84,7 +84,7 @@ export function FallTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: Ve
     console.log("FallTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,
@@ -114,7 +114,7 @@ export function DisableCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
     console.log("DisableCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,
@@ -143,7 +143,7 @@ export function ReverseCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
     console.log("ReverseCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,
@@ -170,7 +170,7 @@ export function ToggleUpperFallZoneTriggerZone(_gameMgr: GameManager, _pos: Vect
     console.log("DisableCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
 
     Transform.create(e, {
         position: _pos,

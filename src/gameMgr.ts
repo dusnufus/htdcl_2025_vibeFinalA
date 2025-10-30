@@ -98,7 +98,7 @@ export class GameManager{
         this.shopKeeper = createShopOwnerNPC(this)
         //this.templeShaman = createTempleShamanNPC(this)
         //random int from 1 to 6 for floor
-        let f = Math.ceil(Math.random() * 6)
+        let f = Math.ceil(Math.random() * 5)
         //random float from 0 to 1 for position
         let p = Math.random()       
         this.oldLady = createOldLadyNPC(this, 
@@ -174,6 +174,20 @@ export class GameManager{
 
         //this.parkSign()
 
+        var v = engine.addEntity()
+        
+        Transform.create(v, {
+            position: Vector3.create(17.14,20,-24.54),
+            scale: Vector3.create(8,10,8),
+            rotation: Quaternion.fromEulerDegrees(0,248,0)
+        })
+        MeshCollider.setBox(v)
+        Material.setPbrMaterial(v, {
+            albedoColor: Color4.create(0,0,0),
+        })
+        MeshRenderer.setBox(v)
+        this.staticEntities.push(v)
+
     }
 
     parkSign(){
@@ -200,7 +214,7 @@ export class GameManager{
 		/* this.tpVideoRoom2 = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
         this.tpVideoRoom2.setVideo("videos/ritual.mp4", 3, 3) */
 
-        this.missionTitle = '@GhostTownDCL on X \n - EXPLORE THROUGH THE TUNNEL -'
+        this.missionTitle = '@GhostTownDCL on X'
 
         //this.parkSign()
 
@@ -264,7 +278,7 @@ export class GameManager{
                                                                         false))
             }
             //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), true)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), false)
         } else {
             //turn the player around
             this.playerMgr.headedUp = true
@@ -278,14 +292,14 @@ export class GameManager{
                                                                         false))
             }
             //spawn the reverse checkpoints trigger zone (at temple landing)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), false)
         }
     }
 
     turnOnFallZone(){
-        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), true)
+        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), false)
         //also, create the disable checkpoints trigger zone
-        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), true)
+        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), false)
     }
 
     turnOffFallZone(){
@@ -323,8 +337,8 @@ export class GameManager{
             //handle end of the ritual cutscene
             //move the player to the player's house starting point
             movePlayerTo({
-                newRelativePosition: Vector3.create(20.42,20,-22),//bottom of the tunnel
-                cameraTarget: Vector3.create(11.6,20,-29)
+                newRelativePosition: Vector3.create(37.5,21,-19),//bottom of the tunnel
+                cameraTarget: Vector3.create(10,27,9)
             })
         }
         else if(this.missionState == "endCutscenePlaying"){
@@ -394,7 +408,7 @@ export class GameManager{
 
     shopKeeperGivingJar(){
         this.missionState = 'takeTheJar'
-        this.missionTitle = 'TAKE THE JAR'
+        this.missionTitle = 'TAKE THE JAR FROM SHOPKEEP'
         //spawn the jar
         this.jar = JarCollectable(this, "models/final/emptyJarB.gltf", Vector3.create(-23.65,11.85,16.55), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
         
@@ -430,7 +444,7 @@ export class GameManager{
         //TODO: remove the collider keeping player out of the graveyard?
 
         //temp: spawn the whisper collectable
-        this.whisper = WhisperCollectable(this, "models/final/whisperB.gltf", Vector3.create(1.85,11.35,34.57), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
+        this.whisper = WhisperCollectable(this, "models/final/whisperB.gltf", Vector3.create(1.95,12.75,34), Vector3.create(1,1,1), Quaternion.fromEulerDegrees(0,0,0))
     }
 
     itemCheck(){
@@ -610,7 +624,7 @@ const buttonPositions = {
     '3': Vector3.create(1.8, 1.9, 0.6),
     '4': Vector3.create(1.8, 2.2, 0.6),
     '5': Vector3.create(1.8, 2.5, 0.6),
-    'PH': Vector3.create(1.8, 2.8, 0.6)
+    //'PH': Vector3.create(1.8, 2.8, 0.6)
 
 }
 
