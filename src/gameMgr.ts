@@ -120,7 +120,8 @@ export class GameManager{
         
         //create the video room and set the intro video
 		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
-        this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
+        this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
+        //this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
         
         //init any arrays/vars that will be used later in the game progression
         this.candles = []
