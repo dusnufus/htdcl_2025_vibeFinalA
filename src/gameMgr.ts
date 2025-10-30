@@ -36,10 +36,10 @@ export class GameManager{
 
     girl!: NPC
     shopKeeper!: NPC
-    templeShaman!: NPC  
+    //templeShaman!: NPC  
     oldLady!: NPC
     doorman!: NPC
-    librarian!: NPC
+    //librarian!: NPC
 
     monster!: NPC
 
@@ -65,6 +65,8 @@ export class GameManager{
     currentDialogNPC: any = null
     
     //tempGirlHouseClicker: any
+
+    
 
     messageText: string = "nothing"
 
@@ -98,7 +100,7 @@ export class GameManager{
         //create NPCs
         this.girl = createGirlNPC(this)
         this.shopKeeper = createShopOwnerNPC(this)
-        this.templeShaman = createTempleShamanNPC(this)
+        //this.templeShaman = createTempleShamanNPC(this)
         //random int from 1 to 6 for floor
         let f = Math.ceil(Math.random() * 6)
         //random float from 0 to 1 for position
@@ -107,7 +109,7 @@ export class GameManager{
             (p<0.5) ? Vector3.create(-26.63,floors[f].yPosition,-16.58) : Vector3.create(-29.53,floors[f].yPosition,-14.62), 
             (p<0.5) ? Quaternion.fromEulerDegrees(0,97,0) : Quaternion.fromEulerDegrees(0,323,0))
         this.doorman = createDoormanNPC(this)
-        this.librarian = createLibrarianNPC(this)
+        //this.librarian = createLibrarianNPC(this)
         this.monster = createMonsterNPC(this) as any
 
         //init mission state and display title
@@ -160,11 +162,32 @@ export class GameManager{
     foundTree(){
         this.missionState = 'ritualCutscenePlaying'
         //movePlayerTo({newRelativePosition: Vector3.create(10,2,10), cameraTarget: Vector3.create(10,2,10)})
-        this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
+        //this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
 
         //create the video room and set the intro video
 		/* this.tpVideoRoom2 = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
         this.tpVideoRoom2.setVideo("videos/ritual.mp4", 3, 3) */
+
+        this.missionTitle = '@GhostTownDCL on X'
+        
+        //spawn the park sign
+        const e = engine.addEntity()
+        GltfContainer.create(e, {
+            src: 'models/final/parkSignB.gltf'
+        })
+        Transform.create(e, {
+            position: Vector3.create(17.43,20,-21.72),
+            scale: Vector3.create(1,1,1),
+            rotation: Quaternion.fromEulerDegrees(0,293.5,0)
+        })
+        this.staticEntities.push(e)
+
+        movePlayerTo({
+            newRelativePosition: Vector3.create(23.2,20,-21.75),
+            cameraTarget: Vector3.create(17.43,20,-21.72)
+        })
+
+        //37.5,21,-19 (player's house position)
     }
 
     whisperCollected(){

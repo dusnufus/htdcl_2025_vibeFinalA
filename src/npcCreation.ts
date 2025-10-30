@@ -231,7 +231,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     gameMgr.girl.prepareConversation('lookAtApartments')
                 }
             },
-            'toTheApartmentBuilding': {
+            'toTheDoorman': {
                 id: 'toTheDoorman',
                 waypoints: [
                     { position: Vector3.create(-16.85,10.2,3.8), rotation: Quaternion.fromEulerDegrees(0, 207, 0), waitTime: 0 },
@@ -506,7 +506,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                     }
                 },
                 onComplete: () => {
-                    gameMgr.missionState = 'gotToDoorman'
+                    gameMgr.missionState = 'goToDoorman'
                     gameMgr.missionTitle = 'TALK TO THE DOORMAN'
                     gameMgr.girl.startWaypointSet('toTheDoorman')
                 }
@@ -523,6 +523,7 @@ export function createGirlNPC(gameMgr: GameManager): NPC {
                 onComplete: () => {
                     gameMgr.missionState = 'searchApartments'
                     gameMgr.missionTitle = 'SEARCH THE FOR THE OLD LADY'
+                    gameMgr.oldLady.prepareConversation('foundHer')
                     gameMgr.girl.startWaypointSet('searchLobby')
                 }
             },
