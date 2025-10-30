@@ -1,8 +1,8 @@
 //import { worldInfo } from './worldData'
 import { PlayerManager } from './playerMgr'
 
-import {AudioSource, EasingFunction, Tween, TweenSequence, TweenLoop, inputSystem, InputAction, ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
-import {Vector3, Quaternion} from '@dcl/sdk/math'
+import {Material, AudioSource, EasingFunction, Tween, TweenSequence, TweenLoop, inputSystem, InputAction, ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
+import {Vector3, Quaternion, Color4} from '@dcl/sdk/math'
 import {setUiForMissionState } from './uiMgr'
 import { CandleCollectable, JarCollectable, WhisperCollectable} from './components/collectables'
 
@@ -110,7 +110,7 @@ export class GameManager{
 
         //init mission state and display title
         this.missionState = "introPlaying"
-        this.missionTitle = "EXPLORE THE TOWN"
+        this.missionTitle = "EXPLORE THE TOWN \n - FIND THE GIRL'S HOUSE -"
 
         //activate a trigger for the girl's house
         this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), false)
@@ -120,8 +120,8 @@ export class GameManager{
         
         //create the video room and set the intro video
 		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
-        this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
-        //this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
+        //this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
+        this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
         
         //init any arrays/vars that will be used later in the game progression
         this.candles = []
@@ -154,6 +154,24 @@ export class GameManager{
         this.movingEntities = []
         this.placeMovingEntities()
 
+        // TEST: simple trigger to play second video via foundTree() at (30,20,-27)
+        /* {
+        	const e = engine.addEntity()
+        	TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
+        	Transform.create(e, {
+        		position: Vector3.create(30, 20, -27),
+        		scale: Vector3.create(2, 2, 2)
+        	})
+            MeshRenderer.setBox(e)
+            //MeshCollider.setBox(e)
+            Material.setPbrMaterial(e, {
+                albedoColor: Color4.create(0,0,1,0.5),
+            })
+        	triggerAreaEventsSystem.onTriggerEnter(e, () => {
+        		this.foundTree()
+        	})
+        } */
+
         //this.parkSign()
 
     }
@@ -176,21 +194,21 @@ export class GameManager{
     foundTree(){
         this.missionState = 'ritualCutscenePlaying'
         //movePlayerTo({newRelativePosition: Vector3.create(10,2,10), cameraTarget: Vector3.create(10,2,10)})
-        //this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
+        this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
 
         //create the video room and set the intro video
 		/* this.tpVideoRoom2 = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
         this.tpVideoRoom2.setVideo("videos/ritual.mp4", 3, 3) */
 
-        this.missionTitle = '@GhostTownDCL on X'
+        this.missionTitle = '@GhostTownDCL on X \n - EXPLORE THROUGH THE TUNNEL -'
 
-        this.parkSign()
+        //this.parkSign()
 
        
-        movePlayerTo({
+        /* movePlayerTo({
             newRelativePosition: Vector3.create(23.2,20,-21.75),
             cameraTarget: Vector3.create(17.43,20,-21.72)
-        })
+        }) */
 
         //37.5,21,-19 (player's house position)
     }
@@ -305,9 +323,8 @@ export class GameManager{
             //handle end of the ritual cutscene
             //move the player to the player's house starting point
             movePlayerTo({
-                //-34,50,52 (temple landing)
-                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,21,-19 (player's house position)
-                cameraTarget: Vector3.create(10,27,9)
+                newRelativePosition: Vector3.create(20.42,20,-22),//bottom of the tunnel
+                cameraTarget: Vector3.create(11.6,20,-29)
             })
         }
         else if(this.missionState == "endCutscenePlaying"){

@@ -24,7 +24,10 @@ export class TpVideoRoom{
     // Track if video player/modifiers are set up
     videoPlayerSetup: boolean = false
 
-	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number/* , second:boolean = false */){
+    // Incremented every time a new video is scheduled
+    playSessionId: number = 0
+
+	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number){
 
         console.log("TpVideoRoom: constructor running")
 
@@ -42,22 +45,6 @@ export class TpVideoRoom{
             scale: Vector3.create(1,1,1),
             rotation: Quaternion.fromEulerDegrees(0,0,0)
         })
-
-        //THIS WAS PART OF MY ATTEMPTED "second video player" fix
-        /* if(second == true){
-            Transform.create(this.roomEntity, {
-                position: Vector3.create(10,0,10),
-                scale: Vector3.create(1,1,1),
-                rotation: Quaternion.fromEulerDegrees(0,0,0)
-            })
-        }
-        else{
-            Transform.create(this.roomEntity, {
-                position: Vector3.create(0,0,0),
-                scale: Vector3.create(1,1,1),
-                rotation: Quaternion.fromEulerDegrees(0,0,0)
-            })
-        } */
 
         //adding screen entities
         let screenRotation = 360 / _screenCount
@@ -114,23 +101,12 @@ export class TpVideoRoom{
     }
 
     setVideo(_videoSrc: string, _waitBeforeStart: number, _waitAfterEnd: number){
-        console.log(`setVideo: Setting new video ${_videoSrc}`)
-        
-        // Stop and completely remove old video to prevent stale frames
-        if (VideoPlayer.has(this.screenEntities[0])) {
-            const existingPlayer = VideoPlayer.getMutable(this.screenEntities[0])
-            existingPlayer.playing = false
-            VideoPlayer.deleteFrom(this.screenEntities[0])
-            console.log('setVideo: Cleaned up old VideoPlayer')
-        }
-        
-        // Remove old modifiers too
-        for(let i = 0; i < this.screenEntities.length; i++){
-            if (GltfNodeModifiers.has(this.screenEntities[i])) {
-                GltfNodeModifiers.deleteFrom(this.screenEntities[i])
-            }
-        }
-        
+
+        // Ensure previous video is stopped/cleaned before scheduling a new one
+        this.stopVideo()
+
+        this.playSessionId++   // NEW: mark a new play cycle
+
         this.currentVideoSrc = _videoSrc
         this.waitBeforeStart = _waitBeforeStart
         this.waitAfterEnd = _waitAfterEnd
@@ -143,39 +119,22 @@ export class TpVideoRoom{
     }
 
     playVideoNow(){
-        console.log('playVideoNow: starting video', this.currentVideoSrc)
+        console.log('playVideoNow: starting video')
         
-        // COMPLETE cleanup - delete everything first
-        // Delete VideoPlayer completely
-        if (VideoPlayer.has(this.screenEntities[0])) {
-            const existingPlayer = VideoPlayer.getMutable(this.screenEntities[0])
-            existingPlayer.playing = false
-            VideoPlayer.deleteFrom(this.screenEntities[0])
-            console.log('Deleted existing VideoPlayer')
-        }
-        
-        // Delete ALL GltfNodeModifiers from all screens
-        for(let i = 0; i < this.screenEntities.length; i++){
-            if (GltfNodeModifiers.has(this.screenEntities[i])) {
-                GltfNodeModifiers.deleteFrom(this.screenEntities[i])
-            }
-        }
-        console.log('Deleted all existing GltfNodeModifiers')
-        
-        // Now create everything fresh
         VideoPlayer.create(this.screenEntities[0], {
             src: this.currentVideoSrc,
             playing: true,
+            //loop: true,
         })
-        console.log('Created NEW VideoPlayer with src:', this.currentVideoSrc)
 
-        // Create fresh GltfNodeModifiers with new video texture reference
+        //set the same video texture for all the screens
         for(let i = 0; i < this.screenEntities.length; i++){
-            GltfNodeModifiers.create(
+
+            GltfNodeModifiers.createOrReplace(
                 this.screenEntities[i],
                 {
                     modifiers: [{
-                        path: '',  // Empty path applies to root/material
+                        path: '',
                         material: {
                             material: {
                                 $case: 'pbr', pbr: {
@@ -188,47 +147,38 @@ export class TpVideoRoom{
                     }],
                 })
         }
-        console.log('Created NEW GltfNodeModifiers with video texture for all screens')
-        
-        this.videoPlayerSetup = true
 
-        videoEventsSystem.registerVideoEventsEntity(
-            this.screenEntities[0],
-            (videoEvent) => {
-                // Only process if we're in playing state
-                if (this.videoState !== 'playing') return
-                
-                // Capture video length when available and set fallback duration
-                if (videoEvent.videoLength > 0 && this.expectedVideoDuration === 0) {
-                    this.expectedVideoDuration = videoEvent.videoLength + 5  // Add 5 second buffer
-                    console.log(`Video length detected: ${videoEvent.videoLength.toFixed(2)}s, ` + 
-                               `fallback timer set to ${this.expectedVideoDuration.toFixed(2)}s`)
+        if (this.screenEntities.length > 0) {
+            videoEventsSystem.registerVideoEventsEntity(
+                this.screenEntities[0],
+                (videoEvent) => {
+                    // Only process if we're in playing state
+                    if (this.videoState !== 'playing') return
+
+                    if (videoEvent.videoLength > 0) {
+                        this.expectedVideoDuration = videoEvent.videoLength + 5
+                    }
+
+                    if (videoEvent.state === VideoState.VS_PLAYING && 
+                        videoEvent.videoLength > 0 && 
+                        videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
+                        this.videoPlayingTime >= 2.0) {
+                        console.log('video ended (via video events), starting wait period')
+                        this.videoState = 'waitingAfterEnd'
+                        this.elapsedWaitTime = 0
+                    } else if (videoEvent.state === VideoState.VS_PAUSED && 
+                               videoEvent.videoLength > 0 &&
+                               videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
+                               this.videoPlayingTime >= 2.0) {
+                        console.log('video ended (paused at end), starting wait period')
+                        this.videoState = 'waitingAfterEnd'
+                        this.elapsedWaitTime = 0
+                    }
                 }
-        
-                // Only check for completion if:
-                // 1. Video is actually playing
-                // 2. Video length is valid (> 0)
-                // 3. Current offset is near the end (within 0.5s of end)
-                // 4. We've played for at least 2 seconds (to prevent early triggers)
-                if (videoEvent.state === VideoState.VS_PLAYING && 
-                    videoEvent.videoLength > 0 && 
-                    videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
-                    this.videoPlayingTime >= 2.0) {  // Minimum 2 seconds played
-                    console.log('video ended (via video events), starting wait period')
-                    this.videoState = 'waitingAfterEnd'
-                    this.elapsedWaitTime = 0
-                } else if (videoEvent.state === VideoState.VS_PAUSED && 
-                           videoEvent.videoLength > 0 &&
-                           videoEvent.currentOffset >= videoEvent.videoLength - 0.5 &&
-                           this.videoPlayingTime >= 2.0) {
-                    // Also handle paused state when video reaches end
-                    console.log('video ended (paused at end), starting wait period')
-                    this.videoState = 'waitingAfterEnd'
-                    this.elapsedWaitTime = 0
-                }
-            }
-        )
+            )
+        }
     }
+    
     
     checkAndCorrectPlayerPosition() {
         const playerTransform = Transform.getOrNull(engine.PlayerEntity)
@@ -247,6 +197,35 @@ export class TpVideoRoom{
                 newRelativePosition: Vector3.create(0, 1, 0),
                 cameraTarget: Vector3.create(0, 1, -5)  // Look at the video screens
             })
+        }
+    }
+
+    // NEW: stop/cleanup current video safely before playing a new one
+    private stopVideo() {
+        const e = this.screenEntities?.[0]
+        if (!e) return
+        const vp = VideoPlayer.getOrNull(e)
+        if (vp) {
+            const m = VideoPlayer.getMutable(e)
+            m.playing = false
+            // Optionally clear component to force a clean recreate next time
+            VideoPlayer.deleteFrom(e)
+        }
+        // Reset materials to avoid dangling video textures (optional)
+        for (let i = 0; i < this.screenEntities.length; i++) {
+            GltfNodeModifiers.createOrReplace(
+                this.screenEntities[i],
+                {
+                    modifiers: [{
+                        path: '',
+                        material: {
+                            material: {
+                                $case: 'pbr', pbr: {} // no texture
+                            }
+                        }
+                    }]
+                }
+            )
         }
     }
 	
