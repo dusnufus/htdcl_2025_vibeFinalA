@@ -66,8 +66,6 @@ export class GameManager{
     
     //tempGirlHouseClicker: any
 
-    
-
     messageText: string = "nothing"
 
     candles: Array<Entity>
@@ -90,8 +88,6 @@ export class GameManager{
     skeletons: Array<InteractiveEntity> = []
 
 	constructor(){
-		//console.log("GameManager: constructor running")
-
         this.playerMgr = new PlayerManager(this)
 
 		this.staticEntities = []
@@ -157,6 +153,23 @@ export class GameManager{
         this.movingEntities = []
         this.placeMovingEntities()
 
+        //this.parkSign()
+
+    }
+
+    parkSign(){
+        //spawn the park sign
+        var e = engine.addEntity()
+        GltfContainer.create(e, {
+            src: 'models/final/parkSignB.gltf'
+        })
+        Transform.create(e, {
+            position: Vector3.create(17.43,20,-21.72),
+            scale: Vector3.create(1,1,1),
+            rotation: Quaternion.fromEulerDegrees(0,293.5,0)
+        })
+        this.staticEntities.push(e)
+
     }
 
     foundTree(){
@@ -169,19 +182,10 @@ export class GameManager{
         this.tpVideoRoom2.setVideo("videos/ritual.mp4", 3, 3) */
 
         this.missionTitle = '@GhostTownDCL on X'
-        
-        //spawn the park sign
-        const e = engine.addEntity()
-        GltfContainer.create(e, {
-            src: 'models/final/parkSignB.gltf'
-        })
-        Transform.create(e, {
-            position: Vector3.create(17.43,20,-21.72),
-            scale: Vector3.create(1,1,1),
-            rotation: Quaternion.fromEulerDegrees(0,293.5,0)
-        })
-        this.staticEntities.push(e)
 
+        this.parkSign()
+
+       
         movePlayerTo({
             newRelativePosition: Vector3.create(23.2,20,-21.75),
             cameraTarget: Vector3.create(17.43,20,-21.72)

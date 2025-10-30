@@ -24,7 +24,7 @@ export class TpVideoRoom{
     // Track if video player/modifiers are set up
     videoPlayerSetup: boolean = false
 
-	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number, second:boolean = false){
+	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number/* , second:boolean = false */){
 
         console.log("TpVideoRoom: constructor running")
 
@@ -37,7 +37,14 @@ export class TpVideoRoom{
             src: _roomSrc
         })
 
-        if(second == true){
+        Transform.create(this.roomEntity, {
+            position: Vector3.create(0,0,0),
+            scale: Vector3.create(1,1,1),
+            rotation: Quaternion.fromEulerDegrees(0,0,0)
+        })
+
+        //THIS WAS PART OF MY ATTEMPTED "second video player" fix
+        /* if(second == true){
             Transform.create(this.roomEntity, {
                 position: Vector3.create(10,0,10),
                 scale: Vector3.create(1,1,1),
@@ -50,7 +57,7 @@ export class TpVideoRoom{
                 scale: Vector3.create(1,1,1),
                 rotation: Quaternion.fromEulerDegrees(0,0,0)
             })
-        }
+        } */
 
         //adding screen entities
         let screenRotation = 360 / _screenCount
