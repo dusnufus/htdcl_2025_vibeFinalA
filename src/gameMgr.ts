@@ -34,6 +34,8 @@ export class GameManager{
 
     staticEntities: Array<Entity>
 
+    globalDebug: boolean = false
+
     girl!: NPC
     shopKeeper!: NPC
     //templeShaman!: NPC  
@@ -114,7 +116,7 @@ export class GameManager{
         this.missionTitle = "EXPLORE THE TOWN \n - FIND THE GIRL'S HOUSE -"
 
         //activate a trigger for the girl's house
-        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), true)//triggerDEBUG
+        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), this.globalDebug)//triggerDEBUG
 	
         //set the UI for the mission state
         setUiForMissionState(this, this.missionState)
@@ -136,7 +138,7 @@ export class GameManager{
                                                                     data.checkpointTriggerZones_up[ctz].scale, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                    true))//triggerDEBUG
+                                                                    this.globalDebug))//triggerDEBUG
         }
         
         //the fall zone should not be on at this point, but would only be on if checkpoints were being used already
@@ -145,9 +147,9 @@ export class GameManager{
             this.turnOnFallZone()
         }
 
-        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)//triggerDEBUG
+        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), this.globalDebug)//triggerDEBUG
 
-        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), true)//triggerDEBUG
+        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), this.globalDebug)//triggerDEBUG
 	
         // Create the elevator
         this.elevator = new Elevator(elevatorConfig)
@@ -277,11 +279,11 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_down[ctz].scale, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnLookAt, 
-                                                                        true))//triggerDEBUG
+                                                                        this.globalDebug))//triggerDEBUG
             }
             
             //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), true)//triggerDEBUG
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), this.globalDebug)//triggerDEBUG
         } else {
             //turn the player around
             this.playerMgr.headedUp = true
@@ -292,17 +294,17 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_up[ctz].scale, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                        true))//triggerDEBUG
+                                                                        this.globalDebug))//triggerDEBUG
             }
             //spawn the reverse checkpoints trigger zone (at temple landing)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)//triggerDEBUG
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), this.globalDebug)//triggerDEBUG
         }
     }
 
     turnOnFallZone(){
-        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), true)//triggerDEBUG
+        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), this.globalDebug)//triggerDEBUG
         //also, create the disable checkpoints trigger zone
-        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), true)//triggerDEBUG
+        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), this.globalDebug)//triggerDEBUG
     }
 
     turnOffFallZone(){
