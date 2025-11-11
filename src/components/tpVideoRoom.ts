@@ -1,4 +1,4 @@
-import { engine, Transform, GltfContainer, Entity, Material, VideoPlayer, GltfNodeModifiers, VideoState, videoEventsSystem } from '@dcl/sdk/ecs'
+import { pointerEventsSystem, InputAction, engine, Transform, GltfContainer, Entity, Material, VideoPlayer, GltfNodeModifiers, VideoState, videoEventsSystem } from '@dcl/sdk/ecs'
 import { Vector3, Quaternion } from '@dcl/sdk/math'
 import { GameManager } from '../gameMgr'
 import { movePlayerTo } from '~system/RestrictedActions'
@@ -7,6 +7,7 @@ export class TpVideoRoom{
 
 	roomEntity: Entity
     screenEntities: Array<Entity>
+    exitBtnEntities: Array<Entity> = []
     gameMgr: GameManager
 
     // Video timing state management
@@ -15,6 +16,7 @@ export class TpVideoRoom{
     waitAfterEnd: number = 0
     elapsedWaitTime: number = 0
     currentVideoSrc: string = ''
+    exiting: boolean = false
     
     // Fallback timer properties
     videoPlayingTime: number = 0
@@ -27,7 +29,7 @@ export class TpVideoRoom{
     // Incremented every time a new video is scheduled
     playSessionId: number = 0
 
-	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number){
+	constructor(_gameMgr: GameManager, _roomSrc: string, _screenSrc: string, _screenCount: number, _exitBtnSrc: string){
 
         console.log("TpVideoRoom: constructor running")
 
@@ -51,6 +53,7 @@ export class TpVideoRoom{
         
         this.screenEntities = []
         
+        //add screens
         for(let i = 0; i < _screenCount; i++){
             var se = engine.addEntity()
             GltfContainer.create(se, {
@@ -61,6 +64,32 @@ export class TpVideoRoom{
                 rotation: Quaternion.fromEulerDegrees(0,screenRotation * i,0)
             })
             this.screenEntities.push(se)
+        }
+
+        //addExitBtns
+        
+        for(let i = 0; i < _screenCount; i++){
+            console.log("TpVideoRoom: adding exit btn " + i)
+            var eBtn = engine.addEntity()
+            GltfContainer.create(eBtn, {
+                src: _exitBtnSrc
+            })
+            Transform.create(eBtn, {
+                position: Vector3.create(0,0,0),
+                rotation: Quaternion.fromEulerDegrees(0,screenRotation * i -55,0)
+            })
+            // Add click interaction
+            pointerEventsSystem.onPointerDown(
+                eBtn,
+                () => {
+                    this.emergencyExit()
+                },
+                {
+                    button: InputAction.IA_POINTER,
+                    hoverText: `EMERGENCY EXIT`
+                }
+            )
+            this.exitBtnEntities.push(eBtn)
         }
 
         // Add timing system for video wait periods
@@ -102,6 +131,9 @@ export class TpVideoRoom{
 
     setVideo(_videoSrc: string, _waitBeforeStart: number, _waitAfterEnd: number){
 
+        //set exiting to false
+        this.exiting = false
+
         // Ensure previous video is stopped/cleaned before scheduling a new one
         this.stopVideo()
 
@@ -124,7 +156,7 @@ export class TpVideoRoom{
         VideoPlayer.create(this.screenEntities[0], {
             src: this.currentVideoSrc,
             playing: true,
-            //loop: true,
+            loop: false,
         })
 
         //set the same video texture for all the screens
@@ -197,6 +229,16 @@ export class TpVideoRoom{
                 newRelativePosition: Vector3.create(0, 1, 0),
                 cameraTarget: Vector3.create(0, 1, -5)  // Look at the video screens
             })
+        }
+    }
+
+    emergencyExit(){
+        //only read the emergency exit if we are not already exiting
+        if(!this.exiting){
+            this.exiting = true
+            this.stopVideo()
+            this.videoState = 'complete'
+            this.gameMgr.videoComplete()
         }
     }
 

@@ -6,12 +6,14 @@ import {
   import ReactEcs, { Button, Label, ReactEcsRenderer, UiEntity } from '@dcl/sdk/react-ecs'
 import { Color4, Quaternion } from '@dcl/sdk/math'
 
-export function CoordsModule() {
+import { GameManager } from '../gameMgr'
+
+export function CoordsModule(_gameMgr: GameManager) {
     return (
       <UiEntity
       uiTransform={{
         width: 300,
-        height: 40,
+        height: 80,
         margin: { left: '220 px', top: '0 px' },
         flexDirection: 'column',
         alignItems: 'center',
@@ -23,6 +25,11 @@ export function CoordsModule() {
         value={`${getPlayerPosition()}`}
         fontSize={10}
         textAlign="middle-center"
+      />
+      <Label
+          value={`${getPlayerCheckpoint(_gameMgr)}`}
+          fontSize={20}
+          textAlign="middle-center"
       />
 
       </UiEntity>
@@ -41,4 +48,8 @@ export function CoordsModule() {
     //the Quaternion to euler is giving degrees, so we don't need to convert
     
     return `Pos: {X: ${x.toFixed(2)}, Y: ${y.toFixed(2)}, Z: ${z.toFixed(2)}}\nRot: Y: ${euler.y.toFixed(2)}`
+  }
+
+  function getPlayerCheckpoint(_gameMgr: GameManager) {
+    return `Checkpoint: ${_gameMgr.playerMgr.currentCheckpoint}`
   }

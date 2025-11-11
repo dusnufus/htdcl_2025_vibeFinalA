@@ -8,7 +8,8 @@ export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: V
     console.log("HouseTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
 
     Transform.create(e, {
         position: _pos,
@@ -24,8 +25,14 @@ export function HouseTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: V
 
     // Event when trigger area activated
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        console.log("HouseTriggerZone: trigger area activated")
-        _gameMgr.foundGirl()
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+
+            console.log("HouseTriggerZone: trigger area activated")
+            _gameMgr.foundGirl()
+
+        }
+        
     })
 
 
@@ -46,7 +53,8 @@ export function CheckpointTriggerZone(
     console.log(`CheckpointTriggerZone: creating ${_checkpointId}`)
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e , ColliderLayer.CL_PLAYER )
 
     Transform.create(e, {
         position: _pos,
@@ -62,18 +70,22 @@ export function CheckpointTriggerZone(
 
     // Event when trigger area activated
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        // Only update if this isn't already the current checkpoint
-        if (_gameMgr.playerMgr.currentCheckpoint !== _checkpointId) {
-            console.log(`CheckpointTriggerZone: ${_checkpointId} activated`)
-            _gameMgr.playerMgr.setCheckpoint(_checkpointId, _respawnPos, _respawnLookAt)
-        }
 
-        //no matter if this is the current checkpoint, we need to check if the checkpoints are active
-        //if they are not active, we need to activate them. 
-        if(_gameMgr.playerMgr.checkpointSet == false){
-			_gameMgr.playerMgr.checkpointSet = true
-			_gameMgr.turnOnFallZone()
-		}
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+            // Only update if this isn't already the current checkpoint
+            if (_gameMgr.playerMgr.currentCheckpoint !== _checkpointId) {
+                console.log(`CheckpointTriggerZone: ${_checkpointId} activated`)
+                _gameMgr.playerMgr.setCheckpoint(_checkpointId, _respawnPos, _respawnLookAt)
+            }
+
+            //no matter if this is the current checkpoint, we need to check if the checkpoints are active
+            //if they are not active, we need to activate them. 
+            if(_gameMgr.playerMgr.checkpointSet == false){
+                _gameMgr.playerMgr.checkpointSet = true
+                _gameMgr.turnOnFallZone()
+            }
+        }
     })
 
     return e
@@ -84,7 +96,8 @@ export function FallTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: Ve
     console.log("FallTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
 
     Transform.create(e, {
         position: _pos,
@@ -100,11 +113,16 @@ export function FallTriggerZone(_gameMgr: GameManager, _pos: Vector3, _scale: Ve
 
     // Event when trigger area activated (player fell)
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        console.log("FallTriggerZone: player fell, respawning at checkpoint")
-        _gameMgr.playerMgr.respawnAtCheckpoint()
+
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+            console.log("FallTriggerZone: player fell, respawning at checkpoint")
+            _gameMgr.playerMgr.respawnAtCheckpoint()
+            
+            // Optional: Show a message to the player
+            //_gameMgr.showMessage("Respawning at checkpoint...")
+        }
         
-        // Optional: Show a message to the player
-        //_gameMgr.showMessage("Respawning at checkpoint...")
     })
 
     return e
@@ -114,7 +132,8 @@ export function DisableCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
     console.log("DisableCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
 
     Transform.create(e, {
         position: _pos,
@@ -130,8 +149,15 @@ export function DisableCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
 
     // Event when trigger area activated (player fell)
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        console.log("DisableCheckpointsTriggerZone: disabling checkpoints")
-        _gameMgr.playerMgr.disableCheckpoints()
+
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+
+            console.log("DisableCheckpointsTriggerZone: disabling checkpoints")
+            _gameMgr.playerMgr.disableCheckpoints()
+
+        }
+        
         
     })
 
@@ -143,7 +169,8 @@ export function ReverseCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
     console.log("ReverseCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
 
     Transform.create(e, {
         position: _pos,
@@ -159,8 +186,13 @@ export function ReverseCheckpointsTriggerZone(_gameMgr: GameManager, _pos: Vecto
 
     // Event when trigger area activated (player fell)
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        console.log("ReverseCheckpointsTriggerZone: reversing checkpoints")
-        _gameMgr.reverseCheckpoints()
+
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+            console.log("ReverseCheckpointsTriggerZone: reversing checkpoints")
+            _gameMgr.reverseCheckpoints()
+        }
+        
     })
 
     return e    
@@ -170,7 +202,8 @@ export function ToggleUpperFallZoneTriggerZone(_gameMgr: GameManager, _pos: Vect
     console.log("DisableCheckpointsTriggerZone: constructor running")
     var e = engine.addEntity()
 
-    TriggerArea.setBox(e/* , ColliderLayer.CL_PLAYER */)
+    TriggerArea.setBox(e)
+    //TriggerArea.setBox(e, ColliderLayer.CL_PLAYER)
 
     Transform.create(e, {
         position: _pos,
@@ -186,13 +219,15 @@ export function ToggleUpperFallZoneTriggerZone(_gameMgr: GameManager, _pos: Vect
 
     // Event when trigger area activated (player fell)
     triggerAreaEventsSystem.onTriggerEnter(e, (r) => {
-        console.log("DisableCheckpointsTriggerZone: disabling checkpoints")
-        /* if(_gameMgr.playerMgr.upperZoneActive == false){
-            _gameMgr.playerMgr.upperZoneActive = true
-        } else {
-            _gameMgr.playerMgr.upperZoneActive = false
-        } */
-        _gameMgr.adjustUpperFallZone()
+
+        //only have ANY reaction to this event if the trigger is the ONE player
+        if(r.trigger?.entity == engine.PlayerEntity){
+
+            console.log("Adjusting upper fall zone...")
+            _gameMgr.adjustUpperFallZone()
+            
+        }
+        
     })
 
     return e

@@ -55,6 +55,7 @@ export class GameManager{
     tpVideoRoom: TpVideoRoom
     //tpVideoRoom2!: TpVideoRoom
     
+    
     // Dialog system
     dialogActive: boolean = false
     dialogNPCName: string = ""
@@ -113,13 +114,13 @@ export class GameManager{
         this.missionTitle = "EXPLORE THE TOWN \n - FIND THE GIRL'S HOUSE -"
 
         //activate a trigger for the girl's house
-        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), false)
+        this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), true)//triggerDEBUG
 	
         //set the UI for the mission state
         setUiForMissionState(this, this.missionState)
         
         //create the video room and set the intro video
-		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5)
+		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5, "models/final/tpVideo_emergencyExitBtnB.gltf")
         //this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
         this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
         
@@ -135,7 +136,7 @@ export class GameManager{
                                                                     data.checkpointTriggerZones_up[ctz].scale, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                     data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                    false))
+                                                                    true))//triggerDEBUG
         }
         
         //the fall zone should not be on at this point, but would only be on if checkpoints were being used already
@@ -144,9 +145,9 @@ export class GameManager{
             this.turnOnFallZone()
         }
 
-        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), false)
+        this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)//triggerDEBUG
 
-        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), false)
+        this.upperFallZoneToggleTriggerZone = ToggleUpperFallZoneTriggerZone(this, Vector3.create(1.75,40,58), Vector3.create(6,6,6), true)//triggerDEBUG
 	
         // Create the elevator
         this.elevator = new Elevator(elevatorConfig)
@@ -174,6 +175,7 @@ export class GameManager{
 
         //this.parkSign()
 
+        //TEMP BLOCKADE FOR THE UPPER AREA
         var v = engine.addEntity()
         
         Transform.create(v, {
@@ -230,7 +232,7 @@ export class GameManager{
     whisperCollected(){
         engine.removeEntity(this.whisper)
         this.missionState = 'haveTheWhisper'
-        this.missionTitle = 'GTFO THIS GRAVEYARD!'
+        this.missionTitle = 'GTFO OF THIS GRAVEYARD!'
         this.girl.startWaypointSet('runOutOfGraveyard')
 
     }
@@ -275,10 +277,11 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_down[ctz].scale, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_down[ctz].respawnLookAt, 
-                                                                        false))
+                                                                        true))//triggerDEBUG
             }
+            
             //spawn the reverse checkpoints trigger zone (at bottom of the bone bridge)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), false)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-46,30,-23.4), Vector3.create(8,8,8), true)//triggerDEBUG
         } else {
             //turn the player around
             this.playerMgr.headedUp = true
@@ -289,17 +292,17 @@ export class GameManager{
                                                                         data.checkpointTriggerZones_up[ctz].scale, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnPos, 
                                                                         data.checkpointTriggerZones_up[ctz].respawnLookAt, 
-                                                                        false))
+                                                                        true))//triggerDEBUG
             }
             //spawn the reverse checkpoints trigger zone (at temple landing)
-            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), false)
+            this.reverseCheckpointsTriggerZone = ReverseCheckpointsTriggerZone(this, Vector3.create(-39.5,46,53), Vector3.create(6,6,6), true)//triggerDEBUG
         }
     }
 
     turnOnFallZone(){
-        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), false)
+        this.fallTriggerZone = FallTriggerZone(this, Vector3.create(0,10,0), Vector3.create(160,20,160), true)//triggerDEBUG
         //also, create the disable checkpoints trigger zone
-        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), false)
+        this.disableCheckpointsTriggerZone = DisableCheckpointsTriggerZone(this, Vector3.create(-60,30,-37.5), Vector3.create(6,6,6), true)//triggerDEBUG
     }
 
     turnOffFallZone(){
@@ -325,7 +328,9 @@ export class GameManager{
             //move the player to the player's house starting point
             movePlayerTo({
                 //-34,50,52 (temple landing)
-                newRelativePosition: Vector3.create(37.5,21,-19),//37.5,21,-19 (player's house position)
+                /* newRelativePosition: Vector3.create(27.5,21,-23.1),//bottom of the tunnel
+                cameraTarget: Vector3.create(21.35,22,-23.25) */
+                newRelativePosition: Vector3.create(37.5,21,-19),//player house start
                 cameraTarget: Vector3.create(10,27,9)
             })
 
@@ -337,8 +342,8 @@ export class GameManager{
             //handle end of the ritual cutscene
             //move the player to the player's house starting point
             movePlayerTo({
-                newRelativePosition: Vector3.create(37.5,21,-19),//bottom of the tunnel
-                cameraTarget: Vector3.create(10,27,9)
+                newRelativePosition: Vector3.create(27.5,21,-23.1),//bottom of the tunnel
+                cameraTarget: Vector3.create(21.35,22,-23.25)
             })
         }
         else if(this.missionState == "endCutscenePlaying"){
@@ -729,7 +734,7 @@ const data = {
         ],
         checkpointTriggerZones_up: [        
             {name: "topOfTunnel", pos: Vector3.create(-46.95,32,-26.75), scale: Vector3.create(14,14,14), respawnPos: Vector3.create(-46,28,-23.4), respawnLookAt: Vector3.create(-47.8,29.87,11.3)},
-            {name: "topOfBoneBridge", pos: Vector3.create(-47.8,29.87,11.3), scale: Vector3.create(10,10,10), respawnPos: Vector3.create(-44.5,27,14.9), respawnLookAt: Vector3.create(17,34,50.25)},
+            {name: "topOfBoneBridge", pos: Vector3.create(-47.8,28.87,11.3), scale: Vector3.create(10,6,10), respawnPos: Vector3.create(-44.5,27,14.9), respawnLookAt: Vector3.create(17,34,50.25)},
             {name: "endOfRun", pos: Vector3.create(17,34,50.25), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(18.8,33,51.1), respawnLookAt: Vector3.create(1.75,40,58)},
             {name: "landingD", pos: Vector3.create(1.75,40,58), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(2.65,39,59.5), respawnLookAt: Vector3.create(-10.75,42,55)},
             {name: "landingC", pos: Vector3.create(-10.75,42,55), scale: Vector3.create(6,6,6), respawnPos: Vector3.create(-10.6,41,56.6), respawnLookAt: Vector3.create(-23,44,31.6)},

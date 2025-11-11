@@ -1,12 +1,12 @@
 {
   "worldConfiguration": {
-		"name": "ghosttown.dcl.eth"
+		"name": "portparadox.dcl.eth"
 	},
   "ecs7": true,
   "runtimeVersion": "7",
   "display": {
     "title": "Ghost Town",
-    "description": "BringYourVibe DCL Hackathon 2025 Version",
+    "description": "post-Hackathon testing...",
     "navmapThumbnail": "images/tn_ghostTownA.png",
     "favicon": "favicon_asset"
   },

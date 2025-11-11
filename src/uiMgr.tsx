@@ -32,14 +32,14 @@ export function setUiForMissionState(_gameMgr: GameManager, _missionState: strin
 
 
 const uiInit = () => [
-  CoordsModule(),
+  CoordsModule(gameMgr),
   //PlayerInfoModule(gameMgr),
   //MissionListModule(gameMgr),
   //MessageModule(gameMgr)
 ]
 
 const uiExploringTown = () => [
-  CoordsModule(),
+  CoordsModule(gameMgr),
   PlayerInfoModule(gameMgr),
   MissionListModule(gameMgr),
   //MissionSubListModule(gameMgr),
