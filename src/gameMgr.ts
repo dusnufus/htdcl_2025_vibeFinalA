@@ -1,7 +1,7 @@
 //import { worldInfo } from './worldData'
 import { PlayerManager } from './playerMgr'
 
-import {Material, AudioSource, EasingFunction, Tween, TweenSequence, TweenLoop, inputSystem, InputAction, ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
+import {pointerEventsSystem, Material, AudioSource, EasingFunction, Tween, TweenSequence, TweenLoop, inputSystem, InputAction, ColliderLayer, engine, Entity, GltfContainer, MeshCollider, MeshRenderer, Transform, TriggerArea, triggerAreaEventsSystem, AvatarShape} from '@dcl/sdk/ecs'
 import {Vector3, Quaternion, Color4} from '@dcl/sdk/math'
 import {setUiForMissionState } from './uiMgr'
 import { CandleCollectable, JarCollectable, WhisperCollectable} from './components/collectables'
@@ -90,6 +90,10 @@ export class GameManager{
 
     skeletons: Array<InteractiveEntity> = []
 
+    barricadeEntity?: Entity
+    barricadeRemoved: boolean = false
+    barricadeClicker?: Entity
+
 	constructor(){
         this.playerMgr = new PlayerManager(this)
 
@@ -113,7 +117,7 @@ export class GameManager{
 
         //init mission state and display title
         this.missionState = "introPlaying"
-        this.missionTitle = "EXPLORE THE TOWN \n - FIND THE GIRL'S HOUSE -"
+        this.missionTitle = "-EXPLORE THE TOWN \n - FIND THE GIRL'S HOUSE -"
 
         //activate a trigger for the girl's house
         this.girlHouseTrigger = HouseTriggerZone(this, Vector3.create(34,16,57), Vector3.create(28,7,32), this.globalDebug)//triggerDEBUG
@@ -122,7 +126,7 @@ export class GameManager{
         setUiForMissionState(this, this.missionState)
         
         //create the video room and set the intro video
-		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomB.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5, "models/final/tpVideo_emergencyExitBtnB.gltf")
+		this.tpVideoRoom = new TpVideoRoom(this, "models/final/tpVideoRoomC.gltf", "models/final/tpVideoScreenB_noTex.gltf", 5, "models/final/tpVideo_emergencyExitBtnB_blue_inWalll.gltf")
         //this.tpVideoRoom.setVideo("videos/ritual.mp4", 3, 3)
         this.tpVideoRoom.setVideo("videos/toTitleB.mp4", 3, 3)
         
@@ -175,23 +179,62 @@ export class GameManager{
         	})
         } */
 
-        //this.parkSign()
-
         //TEMP BLOCKADE FOR THE UPPER AREA
-        var v = engine.addEntity()
+        this.barricadeEntity = engine.addEntity()
         
-        Transform.create(v, {
+        Transform.create(this.barricadeEntity, {
             position: Vector3.create(17.14,20,-24.54),
             scale: Vector3.create(8,10,8),
             rotation: Quaternion.fromEulerDegrees(0,248,0)
         })
-        MeshCollider.setBox(v)
-        Material.setPbrMaterial(v, {
+        MeshCollider.setBox(this.barricadeEntity)
+        Material.setPbrMaterial(this.barricadeEntity, {
             albedoColor: Color4.create(0,0,0),
         })
-        MeshRenderer.setBox(v)
-        this.staticEntities.push(v)
+        MeshRenderer.setBox(this.barricadeEntity)
+        //this.staticEntities.push(this.barricadeEntity)
 
+
+
+        //interactive click box to remove the barricade
+        this.barricadeClicker = engine.addEntity()
+
+        MeshRenderer.setBox(this.barricadeClicker)
+        MeshCollider.setBox(this.barricadeClicker)
+        Material.setPbrMaterial(this.barricadeClicker, {
+            albedoColor: Color4.create(0,0,0),
+        })
+
+        Transform.create(this.barricadeClicker, {
+            position: Vector3.create(40.5,20,-32),
+            scale: Vector3.create(.5,.5,.5),
+        })
+
+        pointerEventsSystem.onPointerDown(
+            this.barricadeClicker,
+            () => {
+                this.removeBarricade()
+            },
+            {
+                button: InputAction.IA_POINTER,
+                hoverText: "FAKE FIND GIRL TRIGGER"
+            }
+        )
+
+        //this.parkSign()
+
+        
+
+    }
+
+    removeBarricade(){
+        if(this.barricadeRemoved == false && this.barricadeEntity != undefined){
+            this.barricadeRemoved = true
+            engine.removeEntity(this.barricadeEntity)
+            if(this.barricadeClicker != undefined){
+                engine.removeEntity(this.barricadeClicker)
+            }
+        }
     }
 
     parkSign(){

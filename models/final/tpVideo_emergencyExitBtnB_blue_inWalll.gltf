@@ -16,16 +16,11 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"tpVideoRoom_6side"
+			"name":"ExitButtonA"
 		},
 		{
 			"mesh":1,
-			"name":"tpVideoRoom_6side_collider",
-			"scale":[
-				1.237438678741455,
-				1,
-				1.237438678741455
-			]
+			"name":"ExitButtonA_collider"
 		}
 	],
 	"materials":[
@@ -42,7 +37,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Circle.001",
+			"name":"Cube",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,7 +51,7 @@
 			]
 		},
 		{
-			"name":"Circle.004",
+			"name":"Cube.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -64,7 +59,7 @@
 						"NORMAL":5,
 						"TEXCOORD_0":6
 					},
-					"indices":3
+					"indices":7
 				}
 			]
 		}
@@ -86,108 +81,120 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":38,
+			"count":177,
 			"max":[
-				3.117690086364746,
-				5.399999618530273,
-				3.5999999046325684
+				3.7880654335021973,
+				1.1239912509918213,
+				0.12399142235517502
 			],
 			"min":[
-				-3.117690086364746,
-				0,
-				-3.5999999046325684
+				3.4441399574279785,
+				0.8760087490081787,
+				-0.12399111688137054
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":38,
+			"count":177,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":38,
+			"count":177,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":72,
+			"count":264,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":38,
+			"count":24,
 			"max":[
-				2.165065050125122,
-				3.75,
-				2.5
+				3.843579053878784,
+				1.1722450256347656,
+				0.2097977101802826
 			],
 			"min":[
-				-2.165065050125122,
-				0,
-				-2.5
+				3.3452885150909424,
+				0.809059202671051,
+				-0.2097974270582199
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":38,
+			"count":24,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":38,
+			"count":24,
 			"type":"VEC2"
+		},
+		{
+			"bufferView":7,
+			"componentType":5123,
+			"count":36,
+			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":456,
+			"byteLength":2124,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":456,
+			"byteLength":2124,
+			"byteOffset":2124,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":304,
-			"byteOffset":912,
+			"byteLength":1416,
+			"byteOffset":4248,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":144,
-			"byteOffset":1216,
+			"byteLength":528,
+			"byteOffset":5664,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":1360,
+			"byteLength":288,
+			"byteOffset":6192,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":1816,
+			"byteLength":288,
+			"byteOffset":6480,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":304,
-			"byteOffset":2272,
+			"byteLength":192,
+			"byteOffset":6768,
 			"target":34962
+		},
+		{
+			"buffer":0,
+			"byteLength":72,
+			"byteOffset":6960,
+			"target":34963
 		}
 	],
 	"samplers":[
@@ -198,8 +205,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":2576,
-			"uri":"tpVideoRoomB.bin"
+			"byteLength":7032,
+			"uri":"tpVideo_emergencyExitBtnB_blue_inWalll.bin"
 		}
 	]
 }

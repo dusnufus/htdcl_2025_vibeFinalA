@@ -76,7 +76,7 @@ export class TpVideoRoom{
             })
             Transform.create(eBtn, {
                 position: Vector3.create(0,0,0),
-                rotation: Quaternion.fromEulerDegrees(0,screenRotation * i -55,0)
+                rotation: Quaternion.fromEulerDegrees(0,screenRotation * i,0)
             })
             // Add click interaction
             pointerEventsSystem.onPointerDown(
@@ -122,6 +122,7 @@ export class TpVideoRoom{
                 if (this.elapsedWaitTime >= this.waitAfterEnd) {
                     this.elapsedWaitTime = 0
                     this.videoState = 'complete'
+                    this.stopVideo()
                     this.gameMgr.videoComplete()
                 }
             }

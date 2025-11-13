@@ -16,15 +16,27 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"tpVideoRoom_6side"
+			"name":"tpVideoRoom_5Side",
+			"rotation":[
+				0,
+				-0.15643447637557983,
+				0,
+				0.987688422203064
+			]
 		},
 		{
 			"mesh":1,
-			"name":"tpVideoRoom_6side_collider",
+			"name":"tpVideoRoom_5Side_collider",
+			"rotation":[
+				0,
+				-0.15643446147441864,
+				0,
+				0.987688422203064
+			],
 			"scale":[
-				1.237438678741455,
+				0.9476644992828369,
 				1,
-				1.237438678741455
+				0.9476644992828369
 			]
 		}
 	],
@@ -42,7 +54,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Circle.001",
+			"name":"Cylinder",
 			"primitives":[
 				{
 					"attributes":{
@@ -56,7 +68,7 @@
 			]
 		},
 		{
-			"name":"Circle.004",
+			"name":"Cylinder.001",
 			"primitives":[
 				{
 					"attributes":{
@@ -86,107 +98,107 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"max":[
-				3.117690086364746,
-				5.399999618530273,
-				3.5999999046325684
+				3.467747926712036,
+				5.400000095367432,
+				2.9498424530029297
 			],
 			"min":[
-				-3.117690086364746,
+				-3.467747926712036,
 				0,
-				-3.5999999046325684
+				-3.6462059020996094
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":72,
+			"count":48,
 			"type":"SCALAR"
 		},
 		{
 			"bufferView":4,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"max":[
-				2.165065050125122,
-				3.75,
-				2.5
+				3.467747926712036,
+				3.750000238418579,
+				2.9498424530029297
 			],
 			"min":[
-				-2.165065050125122,
+				-3.467747926712036,
 				0,
-				-2.5
+				-3.6462059020996094
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":5,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":6,
 			"componentType":5126,
-			"count":38,
+			"count":30,
 			"type":"VEC2"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":456,
+			"byteLength":360,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":456,
+			"byteLength":360,
+			"byteOffset":360,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":304,
-			"byteOffset":912,
+			"byteLength":240,
+			"byteOffset":720,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":144,
-			"byteOffset":1216,
+			"byteLength":96,
+			"byteOffset":960,
 			"target":34963
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":1360,
+			"byteLength":360,
+			"byteOffset":1056,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":456,
-			"byteOffset":1816,
+			"byteLength":360,
+			"byteOffset":1416,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":304,
-			"byteOffset":2272,
+			"byteLength":240,
+			"byteOffset":1776,
 			"target":34962
 		}
 	],
@@ -198,8 +210,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":2576,
-			"uri":"tpVideoRoomB.bin"
+			"byteLength":2016,
+			"uri":"tpVideoRoomC.bin"
 		}
 	]
 }
